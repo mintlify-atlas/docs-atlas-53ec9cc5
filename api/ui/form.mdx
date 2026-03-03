@@ -8,7 +8,7 @@ A comprehensive form component built on React Hook Form with validation, field s
 ## Import
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 ```
 
@@ -700,7 +700,7 @@ type EyeIconObject =
 Access the form methods from React Hook Form.
 
 ```tsx
-import { useFormMethodsContext } from "@zayne-labs/ui-react";
+import { useFormMethodsContext } from "@zayne-labs/ui-react/ui/form";
 
 function CustomComponent() {
   const { control, handleSubmit, reset } = useFormMethodsContext();
@@ -714,7 +714,7 @@ function CustomComponent() {
 Access the current field context.
 
 ```tsx
-import { useFormFieldContext } from "@zayne-labs/ui-react";
+import { useFormFieldContext } from "@zayne-labs/ui-react/ui/form";
 
 function CustomComponent() {
   const { name, formItemId } = useFormFieldContext();
@@ -728,7 +728,7 @@ function CustomComponent() {
 Access the form root context (from React Hook Form).
 
 ```tsx
-import { useFormRootContext } from "@zayne-labs/ui-react";
+import { useFormRootContext } from "@zayne-labs/ui-react/ui/form";
 
 function CustomComponent() {
   const formContext = useFormRootContext();

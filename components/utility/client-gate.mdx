@@ -17,7 +17,7 @@ The ClientGate component ensures content is rendered only after JavaScript has l
 
 <CodeGroup>
 ```tsx Simple Usage
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
 ```
 
 ```tsx Render Function
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function App() {
   return (
@@ -60,7 +60,7 @@ You are encouraged to add a fallback that matches the dimensions of the client-r
 ### Browser API-Dependent Component
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function GeolocationDisplay() {
   return (
@@ -93,7 +93,7 @@ function GeolocationDisplay() {
 ### Chart with Skeleton Fallback
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function ChartSkeleton() {
   return (
@@ -116,7 +116,7 @@ function AnalyticsDashboard() {
 ### Third-Party Widget
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function SocialEmbed() {
   return (
@@ -140,7 +140,7 @@ function SocialEmbed() {
 ### Window Size Dependent Component
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 import { useWindowSize } from "@zayne-labs/toolkit-react";
 
 function ResponsiveComponent() {
@@ -201,7 +201,7 @@ function ChartComponent() {
 ### Progressive Enhancement
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function ArticlePage({ article }) {
   return (
@@ -223,7 +223,7 @@ function ArticlePage({ article }) {
 ### Preventing Hydration Mismatches
 
 ```tsx
-import { ClientGate } from "@zayne-labs/ui-react";
+import { ClientGate } from "@zayne-labs/ui-react/common/client-gate";
 
 function UserGreeting() {
   return (

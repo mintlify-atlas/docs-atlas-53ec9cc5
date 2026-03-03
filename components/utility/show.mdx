@@ -17,7 +17,7 @@ The Show component provides a clean, declarative way to conditionally render con
 
 <CodeGroup>
 ```tsx Root Control (Default)
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function UserGreeting({ user }) {
   return (
@@ -29,7 +29,7 @@ function UserGreeting({ user }) {
 ```
 
 ```tsx Content Control
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function Dashboard({ isLoading, error, data }) {
   return (
@@ -55,7 +55,7 @@ function Dashboard({ isLoading, error, data }) {
 ```
 
 ```tsx Static Children
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function FeatureFlag({ enabled }) {
   return (
@@ -117,7 +117,7 @@ Defines fallback content when no conditions match.
 ### Authentication State
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function Header({ user }) {
   return (
@@ -139,7 +139,7 @@ function Header({ user }) {
 ### Loading States
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function DataFetcher({ data, isLoading, error }) {
   return (
@@ -176,7 +176,7 @@ function DataFetcher({ data, isLoading, error }) {
 ### Permission-Based Rendering
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function AdminPanel({ user }) {
   const isAdmin = user?.role === 'admin';
@@ -203,7 +203,7 @@ function AdminPanel({ user }) {
 ### Nested Conditions
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function Profile({ user }) {
   return (
@@ -225,7 +225,7 @@ function Profile({ user }) {
 ### Form Validation Messages
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function FormField({ error, value }) {
   return (
@@ -244,7 +244,7 @@ function FormField({ error, value }) {
 ### Multiple Fallback Options
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function SearchResults({ query, results, isSearching }) {
   return (
@@ -310,7 +310,7 @@ function Notification({ message }) {
 ### With Show Component
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function UserGreeting({ user }) {
   return (
@@ -334,7 +334,7 @@ function Notification({ message }) {
 ### API Response Handling
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function UserProfile({ userId }) {
   const { data, error, isLoading } = useQuery(`/api/users/${userId}`);
@@ -360,7 +360,7 @@ function UserProfile({ userId }) {
 ### Feature Toggles
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function HomePage({ features }) {
   return (
@@ -382,7 +382,7 @@ function HomePage({ features }) {
 ### Empty States
 
 ```tsx
-import { Show } from "@zayne-labs/ui-react";
+import { Show } from "@zayne-labs/ui-react/common/show";
 
 function ItemList({ items }) {
   return (

@@ -17,7 +17,7 @@ The For component provides a declarative way to render lists and arrays in React
 
 <CodeGroup>
 ```tsx Array Rendering
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 const users = [
   { id: 1, name: "Alice" },
@@ -39,7 +39,7 @@ function UserList() {
 ```
 
 ```tsx Numeric Range
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function SkeletonLoader() {
   return (
@@ -53,7 +53,7 @@ function SkeletonLoader() {
 ```
 
 ```tsx renderItem Prop
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function ProductGrid({ products }) {
   return (
@@ -111,7 +111,7 @@ Renders items inside a container element.
 ### List with Fallback
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function TodoList({ todos }) {
   return (
@@ -138,7 +138,7 @@ function TodoList({ todos }) {
 ### Numeric Range for Skeletons
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function ProductListSkeleton() {
   return (
@@ -160,7 +160,7 @@ function ProductListSkeleton() {
 ### With Container Element
 
 ```tsx
-import { ForWithWrapper } from "@zayne-labs/ui-react";
+import { ForWithWrapper } from "@zayne-labs/ui-react/common/for";
 
 function NavigationMenu({ items }) {
   return (
@@ -185,7 +185,7 @@ function NavigationMenu({ items }) {
 ### Accessing Index and Array
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function RankedList({ items }) {
   return (
@@ -208,7 +208,7 @@ function RankedList({ items }) {
 ### Semantic List Wrapper
 
 ```tsx
-import { ForWithWrapper } from "@zayne-labs/ui-react";
+import { ForWithWrapper } from "@zayne-labs/ui-react/common/for";
 
 function FeatureList({ features }) {
   return (
@@ -253,7 +253,7 @@ function UserList({ users }) {
 ### With For Component
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function UserList({ users }) {
   return (
@@ -273,7 +273,7 @@ function UserList({ users }) {
 ### Dynamic Grid Layout
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function ImageGallery({ images }) {
   return (
@@ -303,7 +303,7 @@ function ImageGallery({ images }) {
 ### Breadcrumb Navigation
 
 ```tsx
-import { For } from "@zayne-labs/ui-react";
+import { For } from "@zayne-labs/ui-react/common/for";
 
 function Breadcrumbs({ paths }) {
   return (
@@ -324,7 +324,7 @@ function Breadcrumbs({ paths }) {
 ### Table Rows
 
 ```tsx
-import { ForWithWrapper } from "@zayne-labs/ui-react";
+import { ForWithWrapper } from "@zayne-labs/ui-react/common/for";
 
 function DataTable({ rows }) {
   return (

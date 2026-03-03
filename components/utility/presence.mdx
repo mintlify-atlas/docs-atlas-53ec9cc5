@@ -17,7 +17,7 @@ The Presence component enables smooth animations when components enter and exit 
 
 <CodeGroup>
 ```tsx CSS Animation
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 import { useState } from "react";
 
 function AnimatedBox() {
@@ -46,7 +46,7 @@ function AnimatedBox() {
 ```
 
 ```tsx CSS Transition
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function TransitionBox() {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +129,7 @@ The component adds these data attributes for styling:
 ### Fade Animation
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 import { useState } from "react";
 
 function FadeExample() {
@@ -171,7 +171,7 @@ function FadeExample() {
 ### Slide and Fade
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function SlideExample({ isOpen, onClose }) {
   return (
@@ -220,7 +220,7 @@ function SlideExample({ isOpen, onClose }) {
 ### Using Transition Variant
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 import { useState } from "react";
 
 function TransitionExample() {
@@ -258,7 +258,7 @@ function TransitionExample() {
 ### Render Prop Pattern
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function RenderPropExample({ isVisible }) {
   return (
@@ -282,7 +282,7 @@ function RenderPropExample({ isVisible }) {
 ### Modal with Backdrop
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function Modal({ isOpen, onClose, children }) {
   return (
@@ -349,7 +349,7 @@ function Box({ isOpen }) {
 ### With Presence
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function Box({ isOpen }) {
   return (
@@ -367,7 +367,7 @@ function Box({ isOpen }) {
 ### Collapsible Section
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 import { useState } from "react";
 
 function Collapsible({ title, children }) {
@@ -392,7 +392,7 @@ function Collapsible({ title, children }) {
 ### Notification Toast
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function Toast({ message, isVisible, onDismiss }) {
   return (
@@ -409,7 +409,7 @@ function Toast({ message, isVisible, onDismiss }) {
 ### Animated List Items
 
 ```tsx
-import { Presence } from "@zayne-labs/ui-react";
+import { Presence } from "@zayne-labs/ui-react/common/presence";
 
 function AnimatedListItem({ item, isVisible }) {
   return (

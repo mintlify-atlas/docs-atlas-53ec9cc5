@@ -15,7 +15,7 @@ The SuspenseWithBoundary component wraps children with both ErrorBoundary and Su
 ## Basic Usage
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function App() {
   return (
@@ -53,7 +53,7 @@ function App() {
 ### Data Fetching Component
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function UserProfile({ userId }) {
   return (
@@ -82,7 +82,7 @@ function UserProfile({ userId }) {
 ### Multiple Async Components
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function Dashboard() {
   return (
@@ -115,7 +115,7 @@ function Dashboard() {
 ### Nested Async Content
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function ArticlePage({ articleId }) {
   return (
@@ -141,7 +141,7 @@ function ArticlePage({ articleId }) {
 ### With React Server Components
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 // Server Component
 async function ServerData() {
@@ -165,7 +165,7 @@ function Page() {
 ### Custom Loading Component
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function LoadingSpinner() {
   return (
@@ -207,7 +207,7 @@ function App() {
 
 ```tsx
 import { Suspense } from "react";
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function App() {
   return (
@@ -230,7 +230,7 @@ function App() {
 ### With SuspenseWithBoundary
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function App() {
   return (
@@ -254,7 +254,7 @@ function App() {
 ### API Route Handler
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function ApiDataDisplay({ endpoint }) {
   return (
@@ -281,7 +281,7 @@ function ApiDataDisplay({ endpoint }) {
 ### Image Gallery
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function ImageGallery({ albumId }) {
   return (
@@ -304,7 +304,7 @@ function ImageGallery({ albumId }) {
 ### Form with Async Validation
 
 ```tsx
-import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react/common/suspense-with-boundary";
 
 function SignupForm() {
   return (

@@ -17,7 +17,7 @@ The Switch component provides a declarative pattern-matching approach for render
 
 <CodeGroup>
 ```tsx Value-Based Matching
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function StatusIndicator({ status }) {
   return (
@@ -32,7 +32,7 @@ function StatusIndicator({ status }) {
 ```
 
 ```tsx Boolean Matching (switch(true))
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function UserGreeting({ user, isLoading, error }) {
   return (
@@ -52,7 +52,7 @@ function UserGreeting({ user, isLoading, error }) {
 ```
 
 ```tsx Render Functions
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function DataDisplay({ data }) {
   return (
@@ -109,7 +109,7 @@ Defines fallback content when no cases match.
 ### API Response States
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function ApiResponse({ status, data, error }) {
   return (
@@ -146,7 +146,7 @@ function ApiResponse({ status, data, error }) {
 ### User Role Rendering
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function Dashboard({ user }) {
   return (
@@ -174,7 +174,7 @@ function Dashboard({ user }) {
 ### Complex Condition Matching
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function PricingCard({ user, plan }) {
   const isPremium = plan === 'premium';
@@ -218,7 +218,7 @@ function PricingCard({ user, plan }) {
 ### Theme Selector
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function ThemePreview({ theme }) {
   return (
@@ -255,7 +255,7 @@ function ThemePreview({ theme }) {
 ### With Render Functions
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function NotificationBadge({ type, count }) {
   return (
@@ -298,7 +298,7 @@ function NotificationBadge({ type, count }) {
 ### Order Status Flow
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function OrderStatus({ order }) {
   return (
@@ -400,7 +400,7 @@ function StatusIndicator({ status }) {
 ### With Switch Component
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function StatusIndicator({ status }) {
   return (
@@ -419,7 +419,7 @@ function StatusIndicator({ status }) {
 ### Form Step Navigation
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function MultiStepForm({ currentStep }) {
   return (
@@ -447,7 +447,7 @@ function MultiStepForm({ currentStep }) {
 ### File Type Preview
 
 ```tsx
-import { Switch } from "@zayne-labs/ui-react";
+import { Switch } from "@zayne-labs/ui-react/common/switch";
 
 function FilePreview({ file }) {
   const extension = file.name.split('.').pop();

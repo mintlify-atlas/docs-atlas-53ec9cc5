@@ -8,7 +8,7 @@ A comprehensive file upload component with drag-and-drop, validation, and upload
 ## Import
 
 ```tsx
-import { DropZone } from "@zayne-labs/ui-react";
+import { DropZone } from "@zayne-labs/ui-react/ui/drop-zone";
 ```
 
 ## Component Parts
@@ -634,7 +634,7 @@ interface UseDropZoneResult {
 ### useDropZone
 
 ```tsx
-import { useDropZone } from "@zayne-labs/ui-react";
+import { useDropZone } from "@zayne-labs/ui-react/ui/drop-zone";
 
 const result = useDropZone({
   multiple: true,
@@ -648,7 +648,7 @@ const result = useDropZone({
 ### useDropZoneStoreContext
 
 ```tsx
-import { useDropZoneStoreContext } from "@zayne-labs/ui-react";
+import { useDropZoneStoreContext } from "@zayne-labs/ui-react/ui/drop-zone";
 
 function CustomComponent() {
   const fileCount = useDropZoneStoreContext((state) => state.fileStateArray.length);

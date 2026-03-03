@@ -17,7 +17,7 @@ The Await component provides a declarative way to handle asynchronous operations
 
 <CodeGroup>
 ```tsx Render Prop Pattern
-import { Await } from "@zayne-labs/ui-react";
+import { Await } from "@zayne-labs/ui-react/common/await";
 
 const fetchUser = async (id: string) => {
   const response = await fetch(`/api/users/${id}`);
@@ -41,7 +41,7 @@ function UserProfile({ userId }: { userId: string }) {
 ```
 
 ```tsx Slot-based Pattern
-import { Await } from "@zayne-labs/ui-react";
+import { Await } from "@zayne-labs/ui-react/common/await";
 
 function UserProfile({ userId }: { userId: string }) {
   const userPromise = fetchUser(userId);
@@ -142,7 +142,7 @@ Renders content while the promise is pending.
 ### Using Inline Props
 
 ```tsx
-import { Await } from "@zayne-labs/ui-react";
+import { Await } from "@zayne-labs/ui-react/common/await";
 
 function DataDisplay() {
   const dataPromise = fetchData();
@@ -167,9 +167,9 @@ function DataDisplay() {
 ### Disabling Suspense/ErrorBoundary
 
 ```tsx
-import { Await } from "@zayne-labs/ui-react";
+import { Await } from "@zayne-labs/ui-react/common/await";
 import { Suspense } from "react";
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/await";
 
 function CustomBoundaries() {
   const promise = fetchData();
@@ -193,7 +193,7 @@ function CustomBoundaries() {
 ### Using asChild for Prop Merging
 
 ```tsx
-import { Await } from "@zayne-labs/ui-react";
+import { Await } from "@zayne-labs/ui-react/common/await";
 
 function StyledError() {
   const promise = fetchData();

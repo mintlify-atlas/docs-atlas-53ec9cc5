@@ -17,7 +17,7 @@ The ErrorBoundary component catches JavaScript errors anywhere in the component 
 
 <CodeGroup>
 ```tsx Simple Fallback
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
 ```
 
 ```tsx Render Function
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function App() {
   return (
@@ -86,7 +86,7 @@ function App() {
 ### Error Logging
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function App() {
   const handleError = ({ error, info }) => {
@@ -120,7 +120,7 @@ function App() {
 ### Auto-Reset on Key Change
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function UserProfile({ userId }) {
   return (
@@ -146,7 +146,7 @@ When `userId` changes, the error boundary automatically resets and re-renders th
 ### Nested Error Boundaries
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function Dashboard() {
   return (
@@ -177,7 +177,7 @@ function Dashboard() {
 ### Using the Hook
 
 ```tsx
-import { useErrorBoundary } from "@zayne-labs/ui-react";
+import { useErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function DataFetcher() {
   const { showBoundary, resetBoundary } = useErrorBoundary();
@@ -219,7 +219,7 @@ function App() {
 ### Custom Error UI
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -276,7 +276,7 @@ class ErrorBoundary extends React.Component {
 ### With Zayne Labs ErrorBoundary
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 <ErrorBoundary
   onError={({ error, info }) => console.error(error, info)}
@@ -291,7 +291,7 @@ import { ErrorBoundary } from "@zayne-labs/ui-react";
 ### Protecting Route Components
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function RouteErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -330,7 +330,7 @@ function Router() {
 ### Form Validation Errors
 
 ```tsx
-import { ErrorBoundary } from "@zayne-labs/ui-react";
+import { ErrorBoundary } from "@zayne-labs/ui-react/common/error-boundary";
 
 function FormContainer() {
   return (

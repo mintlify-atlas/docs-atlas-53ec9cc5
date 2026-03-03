@@ -27,7 +27,7 @@ pnpm add @zayne-labs/ui-react
 ## Basic Usage
 
 ```tsx
-import { useDragScroll } from "@zayne-labs/ui-react";
+import { useDragScroll } from "@zayne-labs/ui-react/ui/drag-scroll";
 
 function HorizontalScroller() {
   const { propGetters } = useDragScroll();
@@ -202,7 +202,7 @@ Props for the next/forward navigation button.
 ### Image Gallery
 
 ```tsx
-import { useDragScroll } from "@zayne-labs/ui-react";
+import { useDragScroll } from "@zayne-labs/ui-react/ui/drag-scroll";
 
 function ImageGallery({ images }) {
   const { propGetters } = useDragScroll({
@@ -248,7 +248,7 @@ function ImageGallery({ images }) {
 ### Product Carousel
 
 ```tsx
-import { useDragScroll } from "@zayne-labs/ui-react";
+import { useDragScroll } from "@zayne-labs/ui-react/ui/drag-scroll";
 
 function ProductCarousel({ products }) {
   const { propGetters, useDragScrollStore } = useDragScroll({
@@ -298,7 +298,7 @@ function ProductCarousel({ products }) {
 ### Vertical Timeline
 
 ```tsx
-import { useDragScroll } from "@zayne-labs/ui-react";
+import { useDragScroll } from "@zayne-labs/ui-react/ui/drag-scroll";
 
 function VerticalTimeline({ events }) {
   const { propGetters } = useDragScroll({
@@ -346,7 +346,7 @@ function VerticalTimeline({ events }) {
 ### Desktop-Only Drag
 
 ```tsx
-import { useDragScroll } from "@zayne-labs/ui-react";
+import { useDragScroll } from "@zayne-labs/ui-react/ui/drag-scroll";
 
 function DesktopDragScroll({ items }) {
   const { propGetters } = useDragScroll({

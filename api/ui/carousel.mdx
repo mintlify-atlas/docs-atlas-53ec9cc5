@@ -8,7 +8,7 @@ A feature-rich carousel component with auto-slide, navigation controls, and indi
 ## Import
 
 ```tsx
-import { Carousel } from "@zayne-labs/ui-react";
+import { Carousel } from "@zayne-labs/ui-react/ui/carousel";
 ```
 
 ## Component Parts
@@ -315,7 +315,7 @@ type CarouselStoreApi<TImages extends ImagesType> = StoreApi<CarouselStore<TImag
 Access the carousel store from within carousel components.
 
 ```tsx
-import { useCarouselStoreContext } from "@zayne-labs/ui-react";
+import { useCarouselStoreContext } from "@zayne-labs/ui-react/ui/carousel";
 
 function CustomCarouselComponent() {
   const currentSlide = useCarouselStoreContext((state) => state.currentSlide);

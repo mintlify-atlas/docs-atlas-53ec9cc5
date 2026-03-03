@@ -33,7 +33,7 @@ pnpm add zod @hookform/resolvers
 ## Basic Usage
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 
 function LoginForm() {
@@ -226,7 +226,7 @@ Submit button with proper type attribute.
 ### Registration Form with Validation
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -300,7 +300,7 @@ function RegistrationForm() {
 ### Form with Input Groups
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 
 function PricingForm() {
@@ -339,7 +339,7 @@ function PricingForm() {
 ### Controlled Field with Custom Component
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 
 function CustomControlledForm() {
@@ -377,7 +377,7 @@ function CustomControlledForm() {
 React to field value changes:
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 
 function WatchedForm() {
@@ -421,7 +421,7 @@ function WatchedForm() {
 Subscribe to form state changes:
 
 ```tsx
-import { Form } from "@zayne-labs/ui-react";
+import { Form } from "@zayne-labs/ui-react/ui/form";
 import { useForm } from "react-hook-form";
 
 function FormWithState() {
