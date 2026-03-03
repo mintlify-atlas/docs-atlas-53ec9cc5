@@ -1,0 +1,738 @@
+---
+title: Form
+description: API reference for the Form component
+---
+
+A comprehensive form component built on React Hook Form with validation, field state management, and accessibility features.
+
+## Import
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+```
+
+## Component Parts
+
+<ResponseField name="Form.Root" type="component">
+  Root form element with context provider
+</ResponseField>
+
+<ResponseField name="Form.Field" type="component">
+  Field wrapper with label, input, and error associations
+</ResponseField>
+
+<ResponseField name="Form.FieldWithController" type="component">
+  Field with built-in Controller for complex inputs
+</ResponseField>
+
+<ResponseField name="Form.FieldBoundController" type="component">
+  Controller bound to parent Field context
+</ResponseField>
+
+<ResponseField name="Form.FieldContext" type="component">
+  Context consumer for field metadata
+</ResponseField>
+
+<ResponseField name="Form.Label" type="component">
+  Accessible label element
+</ResponseField>
+
+<ResponseField name="Form.Input" type="component">
+  Input field with automatic registration
+</ResponseField>
+
+<ResponseField name="Form.TextArea" type="component">
+  Multi-line text input
+</ResponseField>
+
+<ResponseField name="Form.Select" type="component">
+  Select dropdown input
+</ResponseField>
+
+<ResponseField name="Form.InputGroup" type="component">
+  Container for input with left/right items
+</ResponseField>
+
+<ResponseField name="Form.InputLeftItem" type="component">
+  Left-side addon for InputGroup
+</ResponseField>
+
+<ResponseField name="Form.InputRightItem" type="component">
+  Right-side addon for InputGroup
+</ResponseField>
+
+<ResponseField name="Form.Description" type="component">
+  Helper text for the field
+</ResponseField>
+
+<ResponseField name="Form.ErrorMessage" type="component">
+  Error message display
+</ResponseField>
+
+<ResponseField name="Form.Submit" type="component">
+  Form submit button
+</ResponseField>
+
+<ResponseField name="Form.Watch" type="component">
+  Watch form values with render props
+</ResponseField>
+
+<ResponseField name="Form.StateSubscribe" type="component">
+  Subscribe to form state changes
+</ResponseField>
+
+## Form.Root
+
+Root form element that provides form context to all child components.
+
+### Props
+
+<ParamField path="form" type="UseFormReturn<TFieldValues, unknown, TTransformedValues>" required>
+  React Hook Form instance from `useForm()`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Child components
+</ParamField>
+
+<ParamField path="withEyeIcon" type="boolean | EyeIconObject">
+  Configure password visibility toggle
+  
+  - `true` - Use default eye icon
+  - `false` - Disable eye icon
+  - Object with custom icons:
+    ```tsx
+    { open: ReactNode; closed: ReactNode } |
+    { renderIcon: (props: { isPasswordVisible: boolean }) => ReactNode }
+    ```
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names for the form element. Default includes `flex flex-col`
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="root"`
+- `data-slot="form-root"`
+
+## Form.Field
+
+Field wrapper that creates context for label, input, description, and error associations.
+
+### Props
+
+<ParamField path="name" type="FieldPath<TFieldValues>" required>
+  Field name matching the form schema
+</ParamField>
+
+<ParamField path="control" type="Control<TFieldValues, unknown, TTransformedValues>">
+  Form control (auto-resolved from context if not provided)
+</ParamField>
+
+<ParamField path="withWrapper" type="boolean" default={true}>
+  Whether to render a wrapper div
+  
+  - `true` - Render wrapper with default classes
+  - `false` - Only provide context without wrapper
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names when `withWrapper` is true. Default includes `flex flex-col gap-2`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Field content
+</ParamField>
+
+### Data Attributes (when withWrapper is true)
+
+- `data-scope="form"`
+- `data-part="field"`
+- `data-slot="form-field"`
+- `data-disabled` - Present when field is disabled
+- `data-invalid` - Present when field has errors
+
+## Form.FieldWithController
+
+Field with built-in Controller for complex/controlled inputs.
+
+### Props
+
+<ParamField path="name" type="FieldPath<TFieldValues>" required>
+  Field name matching the form schema
+</ParamField>
+
+<ParamField path="control" type="Control<TFieldValues, unknown, TTransformedValues>">
+  Form control (auto-resolved from context if not provided)
+</ParamField>
+
+<ParamField path="render" type="function" required>
+  Render function receiving field props
+  
+  ```tsx
+  ({ field, fieldState, formState }) => React.ReactElement
+  ```
+</ParamField>
+
+<ParamField path="rules" type="RegisterOptions">
+  Validation rules
+</ParamField>
+
+<ParamField path="defaultValue" type="any">
+  Default field value
+</ParamField>
+
+<ParamField path="shouldUnregister" type="boolean">
+  Whether to unregister the field on unmount
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disable the field
+</ParamField>
+
+## Form.FieldBoundController
+
+Controller that automatically uses the parent Field's name from context.
+
+### Props
+
+<ParamField path="render" type="function" required>
+  Render function receiving field props
+  
+  ```tsx
+  ({ field, fieldState, formState }) => React.ReactElement
+  ```
+</ParamField>
+
+<ParamField path="rules" type="RegisterOptions">
+  Validation rules
+</ParamField>
+
+<ParamField path="defaultValue" type="any">
+  Default field value
+</ParamField>
+
+<ParamField path="shouldUnregister" type="boolean">
+  Whether to unregister on unmount
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disable the field
+</ParamField>
+
+## Form.FieldContext
+
+Access field context values (name, IDs) via render props.
+
+### Props
+
+<ParamField path="children" type="function">
+  Render function receiving field context
+  
+  ```tsx
+  (context: {
+    name: string;
+    formItemId: string;
+    formDescriptionId: string;
+    formMessageId: string;
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="render" type="function">
+  Alternative to children
+</ParamField>
+
+## Form.Label
+
+Accessible label element automatically associated with the input.
+
+### Props
+
+<ParamField path="htmlFor" type="string">
+  Custom ID for the associated input (auto-resolved from context if not provided)
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Label content
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="label"`
+- `data-slot="form-label"`
+- `data-disabled` - Present when field is disabled
+- `data-invalid` - Present when field has errors
+
+## Form.Input
+
+Input field with automatic registration and validation.
+
+### Props
+
+<ParamField path="type" type="React.HTMLInputTypeAttribute" default="text">
+  Input type (text, email, password, etc.)
+</ParamField>
+
+<ParamField path="rules" type="RegisterOptions">
+  Validation rules
+  
+  ```tsx
+  {
+    required: "This field is required",
+    minLength: { value: 3, message: "Min 3 characters" },
+    pattern: { value: /^[A-Z]/, message: "Must start with uppercase" },
+  }
+  ```
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for input parts
+  
+  - `input?: string` - Input element classes
+  - `inputGroup?: string` - Input group wrapper classes (for password inputs)
+  - `eyeIcon?: string` - Password toggle icon classes
+  - `error?: string` - Error state classes
+</ParamField>
+
+<ParamField path="withEyeIcon" type="boolean | EyeIconObject">
+  Password visibility toggle configuration (overrides Form.Root setting)
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="input"`
+- `data-slot="form-input"`
+- `data-disabled` - Present when disabled
+- `data-invalid` - Present when field has errors
+
+## Form.TextArea
+
+Multi-line text input field.
+
+### Props
+
+<ParamField path="rules" type="RegisterOptions">
+  Validation rules
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for textarea parts
+  
+  - `base?: string` - Textarea element classes
+  - `error?: string` - Error state classes
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="textarea"`
+- `data-slot="form-textarea"`
+- `data-disabled` - Present when disabled
+- `data-invalid` - Present when field has errors
+
+## Form.Select
+
+Select dropdown input.
+
+### Props
+
+<ParamField path="rules" type="RegisterOptions">
+  Validation rules
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for select parts
+  
+  - `base?: string` - Select element classes
+  - `error?: string` - Error state classes
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Option elements
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="select"`
+- `data-slot="form-select"`
+- `data-disabled` - Present when disabled
+- `data-invalid` - Present when field has errors
+
+## Form.InputGroup
+
+Container for input with left and/or right addons.
+
+### Props
+
+<ParamField path="className" type="string">
+  CSS class names. Default includes `flex items-center justify-between gap-2`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Input element and left/right items
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="input-group"`
+- `data-slot="form-input-group"`
+- `data-disabled` - Present when field is disabled
+- `data-invalid` - Present when field has errors
+
+## Form.InputLeftItem
+
+Left-side addon for InputGroup.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="span">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names. Default includes `inline-flex items-center justify-center`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Addon content (icon, text, etc.)
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="left-item"`
+- `data-slot="form-left-item"`
+
+## Form.InputRightItem
+
+Right-side addon for InputGroup.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="span">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names. Default includes `inline-flex items-center justify-center`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Addon content (icon, text, etc.)
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="right-item"`
+- `data-slot="form-right-item"`
+
+## Form.Description
+
+Helper text providing additional context for the field.
+
+### Props
+
+<ParamField path="className" type="string">
+  CSS class names. Default includes `text-[12px]`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Description content
+</ParamField>
+
+## Form.ErrorMessage
+
+Display validation error messages.
+
+### Props
+
+<ParamField path="errorField" type="FieldPath<TFieldValues> | string">
+  Field name to show errors for (auto-resolved from context if not provided)
+</ParamField>
+
+<ParamField path="type" type="'regular' | 'root'" default="regular">
+  Error type
+  
+  - `regular` - Field-specific errors
+  - `root` - Form-level errors
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names for error messages. Default includes `text-[13px] text-zu-destructive`
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="error-message"`
+- `data-slot="form-error-message"`
+- `data-index` - Message index for multiple errors
+
+## Form.ErrorMessagePrimitive
+
+Low-level error message component with full customization.
+
+### Props
+
+<ParamField path="fieldName" type="FieldPath<TFieldValues> | string" required>
+  Field name to show errors for
+</ParamField>
+
+<ParamField path="type" type="'regular' | 'root'" default="regular">
+  Error type
+</ParamField>
+
+<ParamField path="control" type="Control<TFieldValues>">
+  Form control
+</ParamField>
+
+<ParamField path="renderItem" type="function" required>
+  Custom render function for each error
+  
+  ```tsx
+  (context: {
+    props: {
+      id: string;
+      className: string;
+      'data-scope': 'form';
+      'data-part': 'error-message';
+      'data-index': number;
+    };
+    state: {
+      errorMessage: string;
+      errorMessageArray: string[];
+      index: number;
+    };
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for error parts
+  
+  - `container?: string` - Error list container
+  - `errorMessage?: string` - Individual error message
+  - `errorMessageAnimation?: string` - Shake animation class (default: `animate-shake`)
+</ParamField>
+
+<ParamField path="disableErrorAnimation" type="boolean" default={false}>
+  Disable shake animation on error
+</ParamField>
+
+<ParamField path="disableScrollToErrorField" type="boolean" default={false}>
+  Disable auto-scroll to error field
+</ParamField>
+
+## Form.Submit
+
+Form submit button.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="button">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="type" type="'submit' | 'button' | 'reset'" default="submit">
+  Button type
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Button content
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="form"`
+- `data-part="submit"`
+- `data-slot="form-submit"`
+
+## Form.Watch
+
+Watch form values and render based on changes.
+
+### Props
+
+<ParamField path="name" type="FieldPath<TFieldValues> | FieldPath<TFieldValues>[]">
+  Field name(s) to watch (auto-resolved from context if not provided)
+</ParamField>
+
+<ParamField path="control" type="Control<TFieldValues>">
+  Form control
+</ParamField>
+
+<ParamField path="defaultValue" type="any">
+  Default value when field is undefined
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disable watching
+</ParamField>
+
+<ParamField path="exact" type="boolean">
+  Enable exact match for field names
+</ParamField>
+
+<ParamField path="children" type="function" required>
+  Render function receiving watched value(s)
+  
+  ```tsx
+  (value: TFieldValue) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="render" type="function">
+  Alternative to children
+</ParamField>
+
+## Form.StateSubscribe
+
+Subscribe to form state changes (errors, isDirty, isSubmitting, etc.).
+
+### Props
+
+<ParamField path="name" type="FieldPath<TFieldValues> | FieldPath<TFieldValues>[]">
+  Field name(s) to subscribe to
+</ParamField>
+
+<ParamField path="control" type="Control<TFieldValues>">
+  Form control
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disable subscription
+</ParamField>
+
+<ParamField path="exact" type="boolean">
+  Enable exact match for field names
+</ParamField>
+
+<ParamField path="children" type="function" required>
+  Render function receiving form state
+  
+  ```tsx
+  (formState: UseFormStateReturn<TFieldValues>) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="render" type="function">
+  Alternative to children
+</ParamField>
+
+## Types
+
+### FieldValues
+
+```tsx
+type FieldValues = Record<string, any>;
+```
+
+### FieldState
+
+```tsx
+type FieldState = {
+  isDisabled?: boolean;
+  isInvalid?: boolean;
+  errors?: UseFormStateReturn<FieldValues>["errors"];
+};
+```
+
+### FieldContextValue
+
+```tsx
+type FieldContextValue = {
+  name: string;
+  formItemId: string;
+  formDescriptionId: string;
+  formMessageId: string;
+};
+```
+
+### FormRootContext
+
+```tsx
+type FormRootContext = {
+  withEyeIcon: boolean | EyeIconObject | undefined;
+};
+
+type EyeIconObject =
+  | { open: React.ReactNode; closed: React.ReactNode }
+  | { renderIcon: (props: { isPasswordVisible: boolean }) => React.ReactNode };
+```
+
+## Hooks
+
+### useFormMethodsContext
+
+Access the form methods from React Hook Form.
+
+```tsx
+import { useFormMethodsContext } from "@zayne-labs/ui-react";
+
+function CustomComponent() {
+  const { control, handleSubmit, reset } = useFormMethodsContext();
+  
+  return <button onClick={() => reset()}>Reset</button>;
+}
+```
+
+### useFormFieldContext
+
+Access the current field context.
+
+```tsx
+import { useFormFieldContext } from "@zayne-labs/ui-react";
+
+function CustomComponent() {
+  const { name, formItemId } = useFormFieldContext();
+  
+  return <div>Field: {name}</div>;
+}
+```
+
+### useFormRootContext
+
+Access the form root context (from React Hook Form).
+
+```tsx
+import { useFormRootContext } from "@zayne-labs/ui-react";
+
+function CustomComponent() {
+  const formContext = useFormRootContext();
+  
+  return <div>{formContext.formState.isSubmitting ? "Submitting..." : "Ready"}</div>;
+}
+```

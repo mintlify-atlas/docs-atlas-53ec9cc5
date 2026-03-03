@@ -1,0 +1,95 @@
+---
+title: ClientGate
+description: API reference for the ClientGate component - conditionally render content only on the client side.
+---
+
+## Overview
+
+The `ClientGate` component ensures that its children are only rendered after JavaScript has loaded on the client side. This is useful for preventing hydration mismatches and for components that require browser APIs.
+
+## Import
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+```
+
+## Props
+
+<ParamField path="children" type="React.ReactNode | (() => React.ReactNode)" required>
+  The content to render only on the client side. Can be a render function for lazy evaluation.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to render on the server or before hydration. It's recommended to use a fallback with the same dimensions as the client-rendered children to avoid content layout shift.
+</ParamField>
+
+## Usage Examples
+
+### Basic Usage
+
+```tsx
+<ClientGate fallback={<div>Loading...</div>}>
+  <InteractiveChart data={data} />
+</ClientGate>
+```
+
+### With Render Function
+
+```tsx
+<ClientGate fallback={<ChartSkeleton />}>
+  {() => <Chart data={data} />}
+</ClientGate>
+```
+
+### Preventing Layout Shift
+
+```tsx
+<ClientGate fallback={<FakeChart />}>
+  {() => (
+    <RealChart
+      data={data}
+      width={400}
+      height={300}
+    />
+  )}
+</ClientGate>
+```
+
+In this example, `FakeChart` should have the same dimensions (400x300) as `RealChart` to prevent layout shift during hydration.
+
+### Browser-Only Components
+
+```tsx
+<ClientGate>
+  {() => {
+    // This code only runs in the browser
+    const width = window.innerWidth;
+    return <ResponsiveComponent width={width} />;
+  }}
+</ClientGate>
+```
+
+### Multiple Client-Only Sections
+
+```tsx
+<div>
+  <h1>My Page</h1>
+  
+  <ClientGate fallback={<MapSkeleton />}>
+    <InteractiveMap />
+  </ClientGate>
+  
+  <p>Some content that can be server-rendered</p>
+  
+  <ClientGate fallback={<VideoPlaceholder />}>
+    <VideoPlayer src="video.mp4" />
+  </ClientGate>
+</div>
+```
+
+## Notes
+
+- The component uses the `useIsHydrated` hook internally to detect when the client has hydrated
+- When no fallback is provided, nothing is rendered on the server
+- Using a fallback with matching dimensions prevents Cumulative Layout Shift (CLS)
+- Render functions are useful for lazy loading or accessing browser-only APIs

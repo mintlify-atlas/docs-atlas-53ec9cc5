@@ -1,0 +1,659 @@
+---
+title: DropZone
+description: API reference for the DropZone component
+---
+
+A comprehensive file upload component with drag-and-drop, validation, and upload progress tracking.
+
+## Import
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<ResponseField name="DropZone.Root" type="component">
+  Root provider with file upload state management
+</ResponseField>
+
+<ResponseField name="DropZone.Container" type="component">
+  Drop zone container with drag-and-drop handlers
+</ResponseField>
+
+<ResponseField name="DropZone.Input" type="component">
+  Hidden file input element
+</ResponseField>
+
+<ResponseField name="DropZone.Area" type="component">
+  Combined container and input with context rendering
+</ResponseField>
+
+<ResponseField name="DropZone.Trigger" type="component">
+  Button to open file picker
+</ResponseField>
+
+<ResponseField name="DropZone.FileList" type="component">
+  Container for uploaded files
+</ResponseField>
+
+<ResponseField name="DropZone.FileItem" type="component">
+  Individual file list item
+</ResponseField>
+
+<ResponseField name="DropZone.FileItemPreview" type="component">
+  File preview (image or icon)
+</ResponseField>
+
+<ResponseField name="DropZone.FileItemMetadata" type="component">
+  File name and size display
+</ResponseField>
+
+<ResponseField name="DropZone.FileItemProgress" type="component">
+  Upload progress indicator
+</ResponseField>
+
+<ResponseField name="DropZone.FileItemDelete" type="component">
+  Button to remove a file
+</ResponseField>
+
+<ResponseField name="DropZone.FileClear" type="component">
+  Button to clear all files
+</ResponseField>
+
+<ResponseField name="DropZone.Context" type="component">
+  Context consumer for accessing store state
+</ResponseField>
+
+## DropZone.Root
+
+Root provider that manages file upload state and validation.
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  Child components
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Whether the drop zone is disabled
+</ParamField>
+
+<ParamField path="multiple" type="boolean">
+  Whether to allow multiple files to be uploaded
+</ParamField>
+
+<ParamField path="initialFiles" type="FileMeta | FileMeta[] | null">
+  Initial files to populate the drop zone
+</ParamField>
+
+<ParamField path="disableFilePickerOpenOnAreaClick" type="boolean" default={false}>
+  Whether clicking the drop zone area will open the default file picker
+</ParamField>
+
+<ParamField path="disableInternalStateSubscription" type="boolean" default={false}>
+  Whether to disable the internal state subscription for data attributes. Useful if you want to subscribe to state yourself
+</ParamField>
+
+<ParamField path="disablePreviewGenForNonImageFiles" type="boolean" default={true}>
+  Whether to disallow preview generation for non-image files
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Set to true to disable the default styling
+</ParamField>
+
+### Validation Props
+
+<ParamField path="accept" type="string | string[]">
+  Accepted file types (MIME types or extensions)
+</ParamField>
+
+<ParamField path="maxFiles" type="number">
+  Maximum number of files allowed
+</ParamField>
+
+<ParamField path="maxFileSize" type="number">
+  Maximum file size in bytes
+</ParamField>
+
+<ParamField path="minFileSize" type="number">
+  Minimum file size in bytes
+</ParamField>
+
+<ParamField path="validator" type="function">
+  Custom validation function
+  
+  ```tsx
+  (file: File) => Promise<boolean> | boolean
+  ```
+  
+  If the function returns false, the file will be rejected
+</ParamField>
+
+### Callback Props
+
+<ParamField path="onFilesChange" type="function">
+  Callback fired when the internal files state changes
+  
+  ```tsx
+  (context: { fileStateArray: FileState[] }) => void
+  ```
+</ParamField>
+
+<ParamField path="onUpload" type="function">
+  Callback fired when new files are uploaded
+  
+  ```tsx
+  (context: {
+    fileStateArray: FileState[];
+    onProgress: (ctx: { fileStateOrID: FileState | string; progress: number }) => void;
+    onSuccess: (ctx: { fileStateOrID: FileState | string }) => void;
+    onError: (ctx: { fileStateOrID: FileState | string; error: DropZoneError }) => void;
+  }) => Promise<void> | void
+  ```
+</ParamField>
+
+<ParamField path="onValidationError" type="function">
+  Callback fired on each file validation error
+  
+  ```tsx
+  (context: FileValidationErrorContextEach) => void
+  ```
+</ParamField>
+
+<ParamField path="onValidationSuccess" type="function">
+  Callback fired after all files have been successfully validated
+  
+  ```tsx
+  (context: { files: File[] }) => void
+  ```
+</ParamField>
+
+## DropZone.Container
+
+Drop zone container with drag-and-drop event handlers.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="div">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="container"`
+- `data-drag-over` - Present when dragging over
+- `data-invalid` - Present when validation fails
+
+## DropZone.Input
+
+Hidden file input element.
+
+### Props
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="input"`
+- `data-drag-over` - Present when dragging over
+
+## DropZone.Area
+
+Convenience component combining Container and Input with context rendering.
+
+### Props
+
+<ParamField path="children" type="React.ReactNode | RenderFn">
+  Child components or render function receiving store state
+</ParamField>
+
+<ParamField path="selector" type="function">
+  State selector function
+  
+  ```tsx
+  (state: DropZoneStore) => TSlice
+  ```
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names for container
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for parts
+  
+  - `container?: string`
+  - `input?: string`
+</ParamField>
+
+<ParamField path="extraProps" type="object">
+  Additional props for parts
+  
+  - `container?: object`
+  - `input?: object`
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+## DropZone.Trigger
+
+Button to open the file picker.
+
+### Props
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="trigger"`
+
+## DropZone.FileList
+
+Container for uploaded files with conditional rendering.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="ul">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="forceMount" type="boolean" default={false}>
+  Force mount even when no files are present
+</ParamField>
+
+<ParamField path="renderMode" type="'per-item' | 'manual-list'" default="per-item">
+  Rendering strategy
+  
+  - `per-item` - Render function called for each file
+  - `manual-list` - Render function receives full array
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | RenderFn">
+  Child components or render function
+  
+  Per-item mode:
+  ```tsx
+  (context: {
+    fileState: FileState;
+    index: number;
+    array: FileState[];
+    actions: DropZoneActions["actions"];
+  }) => React.ReactNode
+  ```
+  
+  Manual-list mode:
+  ```tsx
+  (context: {
+    fileStateArray: FileState[];
+    actions: DropZoneActions["actions"];
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="orientation" type="'horizontal' | 'vertical'">
+  List orientation for default styling
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-list"`
+- `data-state="active" | "inactive"`
+
+## DropZone.FileItem
+
+Individual file list item with file state context.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="li">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="fileState" type="FileState" required>
+  File state object for this item
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item"`
+
+## DropZone.FileItemPreview
+
+File preview component with automatic icon/image rendering.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="span">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="fileState" type="FileState">
+  File state object (optional if used within FileItem)
+</ParamField>
+
+<ParamField path="renderPreview" type="boolean | RenderPreviewObject | RenderPreviewFn" default={true}>
+  Preview rendering configuration
+  
+  - `false` - Disable preview
+  - `true` - Use default preview
+  - Object or function for custom rendering
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | RenderFn">
+  Custom preview content or render function
+  
+  ```tsx
+  (context: {
+    fileState: FileState;
+    fileType: string;
+    fileExtension: string;
+    fallbackPreview: () => React.ReactNode;
+  }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item-preview"`
+
+## DropZone.FileItemMetadata
+
+File name and size display.
+
+### Props
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="fileState" type="FileState">
+  File state object (optional if used within FileItem)
+</ParamField>
+
+<ParamField path="size" type="'default' | 'sm'" default="default">
+  Text size variant
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Class names for metadata parts
+  
+  - `name?: string` - File name classes
+  - `size?: string` - File size classes
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | RenderFn">
+  Custom metadata content or render function
+  
+  ```tsx
+  (context: { fileState: FileState }) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item-metadata"`
+
+## DropZone.FileItemProgress
+
+Upload progress indicator with multiple variants.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="span">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="variant" type="'linear' | 'circular' | 'fill'" default="linear">
+  Progress indicator style
+  
+  - `linear` - Horizontal progress bar
+  - `circular` - Circular progress ring
+  - `fill` - Fill overlay effect
+</ParamField>
+
+<ParamField path="size" type="number" default={40}>
+  Size in pixels (circular variant only)
+</ParamField>
+
+<ParamField path="forceMount" type="boolean" default={false}>
+  Force mount even when progress is 100%
+</ParamField>
+
+<ParamField path="unstyled" type="boolean">
+  Disable default styling
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item-progress"`
+
+## DropZone.FileItemDelete
+
+Button to remove a file from the list.
+
+### Props
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="fileStateOrID" type="FileState | File | string">
+  File to delete (optional if used within FileItem)
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item-delete"`
+
+## DropZone.FileClear
+
+Button to clear all files.
+
+### Props
+
+<ParamField path="asChild" type="boolean">
+  Merge props with immediate child element
+</ParamField>
+
+<ParamField path="forceMount" type="boolean" default={false}>
+  Force mount even when no files are present
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="drop-zone"`
+- `data-part="file-item-clear"`
+
+## DropZone.Context
+
+Context consumer for accessing drop zone state.
+
+### Props
+
+<ParamField path="children" type="React.ReactNode | RenderFn" required>
+  Child components or render function
+  
+  ```tsx
+  (context: DropZoneStore | TSlice) => React.ReactNode
+  ```
+</ParamField>
+
+<ParamField path="selector" type="function">
+  State selector function
+  
+  ```tsx
+  (state: DropZoneStore) => TSlice
+  ```
+</ParamField>
+
+## Types
+
+### FileState
+
+```tsx
+interface FileState {
+  id: string;
+  file: File | FileMeta;
+  preview: string | undefined;
+  progress: number;
+  status: "idle" | "uploading" | "success" | "error";
+  error?: FileErrorContext;
+}
+```
+
+### DropZoneStore
+
+```tsx
+type DropZoneStore = DropZoneState & DropZoneActions;
+
+type DropZoneState = {
+  fileStateArray: FileState[];
+  errors: FileErrorContext[];
+  isDraggingOver: boolean;
+  isInvalid: boolean;
+};
+
+type DropZoneActions = {
+  actions: {
+    addFiles: (files: FileList | File[] | null) => Promise<void> | void;
+    clearErrors: () => void;
+    clearFiles: () => void;
+    clearObjectURLs: () => void;
+    handleChange: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void> | void;
+    handleDragEnter: (event: React.DragEvent<HTMLElement>) => void;
+    handleDragLeave: (event: React.DragEvent<HTMLElement>) => void;
+    handleDragOver: (event: React.DragEvent<HTMLElement>) => void;
+    handleDrop: (event: React.DragEvent<HTMLElement>) => Promise<void> | void;
+    handleFileUpload: (ctx: { newFileStateArray: FileState[] }) => Promise<void> | void;
+    handleKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
+    handlePaste: (event: React.ClipboardEvent<HTMLElement>) => Promise<void> | void;
+    openFilePicker: () => void;
+    removeFile: (ctx: { fileStateOrID: FileState | File | string }) => void;
+    setInputRef: (element: HTMLInputElement | null) => void;
+    updateFileState: (ctx: { fileStateOrID: FileState | File | string; } & Partial<Omit<FileState, "file" | "id" | "preview">>) => void;
+  };
+};
+```
+
+### UseDropZoneResult
+
+```tsx
+interface UseDropZoneResult {
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  propGetters: DropZonePropGetters;
+  storeApi: ReturnType<typeof createDropZoneStore>;
+  useDropZoneStore: typeof useDropZoneStoreContext;
+  disabled: boolean;
+  disableInternalStateSubscription: boolean;
+}
+```
+
+## Hooks
+
+### useDropZone
+
+```tsx
+import { useDropZone } from "@zayne-labs/ui-react";
+
+const result = useDropZone({
+  multiple: true,
+  maxFiles: 5,
+  onUpload: async ({ fileStateArray, onProgress, onSuccess }) => {
+    // Handle upload
+  },
+});
+```
+
+### useDropZoneStoreContext
+
+```tsx
+import { useDropZoneStoreContext } from "@zayne-labs/ui-react";
+
+function CustomComponent() {
+  const fileCount = useDropZoneStoreContext((state) => state.fileStateArray.length);
+  const { clearFiles } = useDropZoneStoreContext((state) => state.actions);
+  
+  return <div>Files: {fileCount}</div>;
+}
+```

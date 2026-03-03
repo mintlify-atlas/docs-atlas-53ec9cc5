@@ -1,0 +1,302 @@
+---
+title: Styling
+description: Learn how to style Zayne Labs UI components with Tailwind CSS or vanilla CSS
+---
+
+Zayne Labs UI is completely **headless and unstyled** by default, giving you full control over the visual presentation.
+
+## Headless Design
+
+Components ship with:
+- **No default styles** - You decide how components look
+- **Structural markup** - Semantic HTML with proper accessibility
+- **Data attributes** - Hooks for CSS targeting
+- **ClassName support** - Standard React className prop on all components
+
+This approach means:
+
+<Check>Zero CSS conflicts with your existing styles</Check>
+<Check>Complete design system flexibility</Check>
+<Check>Smaller bundle sizes (no unused CSS)</Check>
+<Check>Framework-agnostic styling approach</Check>
+
+## Using with Tailwind CSS
+
+Zayne Labs UI is designed to work seamlessly with Tailwind CSS.
+
+### 1. Import the Preset
+
+The library includes a Tailwind preset with theme tokens and utilities:
+
+```css style.css
+@import "@zayne-labs/ui-react/css/preset.css";
+```
+
+The preset includes:
+- **Theme variables** - Color tokens like `zu-foreground`, `zu-primary`, `zu-accent`
+- **Animations** - Pre-configured transitions and keyframes
+- **Utilities** - Helper classes for common patterns
+
+### 2. Theme Tokens
+
+The preset defines CSS custom properties for theming:
+
+```css theme.css
+@theme {
+  --color-zu-foreground: oklch(0.145 0 0);
+  --color-zu-accent: oklch(0.967 0.001 286.375);
+  --color-zu-accent-foreground: oklch(0.205 0 0);
+  --color-zu-muted-foreground: oklch(0.556 0 0);
+  --color-zu-destructive: oklch(0.577 0.245 27.325);
+  --color-zu-primary: oklch(0.21 0.04 265.75);
+  --color-zu-primary-foreground: oklch(0.985 0 0);
+  --color-zu-ring: oklch(0.705 0.015 286.067);
+}
+
+:where(.dark, [data-theme="dark"]) {
+  --color-zu-foreground: oklch(0.985 0 0);
+  --color-zu-primary: oklch(0.92 0.004 286.32);
+  /* ... */
+}
+```
+
+Dark mode is automatic when using `.dark` class or `data-theme="dark"`.
+
+### 3. Apply Tailwind Classes
+
+Use the `className` prop to style components:
+
+```tsx
+import { Card } from "@zayne-labs/ui-react/ui/card";
+
+<Card.Root className="rounded-lg border border-gray-200 bg-white shadow-sm">
+  <Card.Header className="border-b border-gray-100 p-6">
+    <Card.Title className="text-2xl font-bold text-zu-foreground">
+      Welcome
+    </Card.Title>
+    <Card.Description className="mt-1 text-zu-muted-foreground">
+      This card uses Tailwind classes
+    </Card.Description>
+  </Card.Header>
+  <Card.Content className="p-6">
+    Content with custom styling
+  </Card.Content>
+  <Card.Footer className="bg-gray-50 p-4">
+    <Card.Action className="rounded-md bg-zu-primary px-4 py-2 text-zu-primary-foreground hover:opacity-90">
+      Action
+    </Card.Action>
+  </Card.Footer>
+</Card.Root>
+```
+
+### Default Styles Example
+
+Some components include minimal defaults that use Tailwind's merge utility:
+
+```tsx card.tsx
+export function CardTitle<TElement extends React.ElementType = "h3">(
+  props: PolymorphicProps<TElement, { className?: string }>
+) {
+  const { as: Element = "h3", className, ...restOfProps } = props;
+
+  return (
+    <Element
+      data-slot="card-title"
+      data-scope="card"
+      data-part="title"
+      className={cnMerge("leading-none font-semibold", className)}
+      {...restOfProps}
+    />
+  );
+}
+```
+
+The `cnMerge` utility (wraps `tailwind-merge`) lets you override defaults:
+
+```tsx
+// Overrides font-semibold with font-bold
+<Card.Title className="font-bold text-3xl">
+  Custom Title
+</Card.Title>
+```
+
+## Using Without Tailwind
+
+You can style components using vanilla CSS by targeting data attributes.
+
+### Target Data Attributes
+
+Every component renders `data-scope`, `data-part`, and `data-slot` attributes:
+
+```css styles.css
+/* Style all card roots */
+[data-scope="card"][data-part="root"] {
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Style card headers */
+[data-scope="card"][data-part="header"] {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Or use the combined data-slot */
+[data-slot="card-title"] {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+[data-slot="card-description"] {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+```
+
+### Carousel Styling Example
+
+```css carousel.css
+/* Base carousel container */
+[data-scope="carousel"][data-part="content"] {
+  position: relative;
+  user-select: none;
+  width: 100%;
+  max-width: 800px;
+}
+
+/* Navigation buttons */
+[data-slot="carousel-button"] {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+[data-slot="carousel-button"]:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Indicators */
+[data-slot="carousel-indicator"] button {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+[data-slot="carousel-indicator"] button.active {
+  width: 2rem;
+  background: white;
+  border-radius: 0.25rem;
+}
+```
+
+## ClassName Prop Usage
+
+All components accept a `className` prop for custom styles:
+
+```tsx
+// Single className
+<Card.Root className="my-custom-card">
+
+// Multiple classes
+<Card.Header className="header-styles border-bottom">
+
+// Conditional classes
+<Card.Action className={isActive ? "active-button" : "inactive-button"}>
+
+// CSS modules
+import styles from "./Card.module.css";
+<Card.Root className={styles.card}>
+```
+
+## Advanced: Custom Class Name Utilities
+
+Many components accept a `classNames` prop for granular control:
+
+```tsx carousel.tsx
+<Carousel.Root
+  images={images}
+  classNames={{
+    base: "w-full max-w-4xl mx-auto",
+    scrollContainer: "snap-x snap-mandatory"
+  }}
+>
+  <Carousel.Controls
+    classNames={{
+      base: "absolute inset-0",
+      iconContainer: "text-white bg-black/50 rounded-full p-2",
+      defaultIcon: "w-6 h-6"
+    }}
+  />
+</Carousel.Root>
+```
+
+This pattern is used in components with multiple internal elements that need independent styling.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Design Tokens">
+    Leverage the built-in theme tokens (`zu-primary`, `zu-foreground`, etc.) for consistency and automatic dark mode support.
+    
+    ```tsx
+    // Good
+    <Card.Title className="text-zu-foreground" />
+    
+    // Avoid hardcoding colors
+    <Card.Title className="text-gray-900" />
+    ```
+  </Accordion>
+  
+  <Accordion title="Prefer Data Attributes for Global Styles">
+    Use data attributes in your global CSS for base component styles, and className for instance-specific customization.
+    
+    ```css
+    /* Global: All cards have this baseline */
+    [data-scope="card"][data-part="root"] {
+      border-radius: 0.5rem;
+    }
+    ```
+    
+    ```tsx
+    {/* Instance: This specific card is special */}
+    <Card.Root className="border-2 border-blue-500" />
+    ```
+  </Accordion>
+  
+  <Accordion title="Organize Your Styles">
+    For Tailwind projects:
+    - Keep component-specific utilities in your component files
+    - Extract repeated patterns into custom Tailwind utilities
+    - Use the `@layer` directive for organization
+    
+    For vanilla CSS:
+    - Create separate CSS files per component
+    - Use CSS custom properties for theming
+    - Follow BEM or a similar naming convention alongside data attributes
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Component Structure" icon="blocks" href="/concepts/component-structure">
+    Learn about the compound component pattern
+  </Card>
+  
+  <Card title="TypeScript" icon="code" href="/concepts/typescript">
+    Explore type-safe component APIs
+  </Card>
+</CardGroup>

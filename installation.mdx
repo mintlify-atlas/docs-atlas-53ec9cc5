@@ -1,0 +1,121 @@
+---
+title: Installation
+description: Install and configure Zayne Labs UI in your React project
+---
+
+## Install the package
+
+Install `@zayne-labs/ui-react` using your preferred package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install @zayne-labs/ui-react
+```
+
+```bash yarn
+yarn add @zayne-labs/ui-react
+```
+
+```bash pnpm
+pnpm add @zayne-labs/ui-react
+```
+
+</CodeGroup>
+
+## Peer dependencies
+
+Zayne Labs UI requires the following peer dependencies:
+
+### Required
+
+These packages are required for the library to work:
+
+```bash
+react@19.x.x
+react-dom@19.x.x
+```
+
+Make sure you have React 19 installed in your project. If you're upgrading from an earlier version, refer to the [React 19 upgrade guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide).
+
+### Optional
+
+These packages are only needed if you use specific components:
+
+<Accordion title="react-hook-form (for Form component)">
+  The `Form` component is a wrapper around react-hook-form. Only install this if you plan to use the Form component.
+
+  ```bash
+  npm install react-hook-form@7.x.x
+  ```
+</Accordion>
+
+<Accordion title="tailwindcss (optional styling utilities)">
+  While Zayne Labs UI components are headless, the library includes optional Tailwind CSS utilities. Install if you want to use the included `cnMerge` utility or pre-styled examples.
+
+  ```bash
+  npm install tailwindcss@4.x.x tailwind-merge
+  ```
+</Accordion>
+
+## Import structure
+
+Zayne Labs UI uses a modular import structure that enables tree-shaking:
+
+### UI components
+
+Import UI components from `@zayne-labs/ui-react/ui/*`:
+
+```tsx
+import { Card } from "@zayne-labs/ui-react/ui/card";
+import { DropZone } from "@zayne-labs/ui-react/ui/drop-zone";
+import { Carousel } from "@zayne-labs/ui-react/ui/carousel";
+```
+
+### Utility components
+
+Import utility components from `@zayne-labs/ui-react/common/*`:
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react/common/switch";
+import { For } from "@zayne-labs/ui-react/common/for";
+import { Show } from "@zayne-labs/ui-react/common/show";
+```
+
+### CSS imports (optional)
+
+If you want to use the included styles:
+
+```tsx
+import "@zayne-labs/ui-react/style.css";
+```
+
+<Tip>
+  Each component is exported as a separate module, so you only bundle what you use. This keeps your bundle size minimal.
+</Tip>
+
+## TypeScript configuration
+
+Zayne Labs UI is built with TypeScript and includes type definitions out of the box. No additional configuration is needed.
+
+For the best development experience, make sure your `tsconfig.json` has:
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx"
+  }
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quick start guide" icon="rocket" href="/quickstart">
+    Build your first component
+  </Card>
+  <Card title="Card component" icon="cube" href="/components/ui/card">
+    Start with a simple card
+  </Card>
+</CardGroup>

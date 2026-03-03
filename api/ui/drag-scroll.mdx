@@ -1,0 +1,245 @@
+---
+title: DragScroll
+description: API reference for the DragScroll hook
+---
+
+A headless hook for implementing drag-to-scroll functionality with scroll buttons.
+
+## Import
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+```
+
+## Usage
+
+```tsx
+function MyComponent() {
+  const { propGetters } = useDragScroll<HTMLDivElement>({
+    orientation: "horizontal",
+    scrollAmount: "item",
+  });
+
+  return (
+    <div>
+      <button {...propGetters.getBackButtonProps()}>←</button>
+      <div {...propGetters.getRootProps()}>
+        <div {...propGetters.getItemProps()}>Item 1</div>
+        <div {...propGetters.getItemProps()}>Item 2</div>
+        <div {...propGetters.getItemProps()}>Item 3</div>
+      </div>
+      <button {...propGetters.getNextButtonProps()}>→</button>
+    </div>
+  );
+}
+```
+
+## Hook Options
+
+<ParamField path="orientation" type="'horizontal' | 'vertical' | 'both'" default="horizontal">
+  The direction in which scrolling is allowed
+  
+  - `horizontal` - Only scroll horizontally
+  - `vertical` - Only scroll vertically
+  - `both` - Scroll in both directions
+</ParamField>
+
+<ParamField path="scrollAmount" type="'item' | number" default="item">
+  Amount to scroll when using navigation buttons
+  
+  - `"item"` - Scroll by the width/height of the first child element
+  - `number` - Scroll by a fixed pixel amount
+</ParamField>
+
+<ParamField path="usage" type="'allScreens' | 'desktopOnly' | 'mobileAndTabletOnly'" default="allScreens">
+  Device usage constraints for drag behavior
+  
+  - `allScreens` - Drag works on all devices
+  - `desktopOnly` - Drag works only on desktop (width >= 768px)
+  - `mobileAndTabletOnly` - Drag works only on mobile/tablet (width < 768px)
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Custom class names for drag scroll parts
+  
+  - `base?: string` - Root container classes
+  - `item?: string` - Item classes
+</ParamField>
+
+<ParamField path="disableInternalStateSubscription" type="boolean" default={false}>
+  Whether to disable the internal state subscription for setting data attributes
+  
+  This is useful if you want to subscribe to the state yourself
+</ParamField>
+
+## Return Value
+
+### propGetters
+
+Object containing prop getter functions for each component part.
+
+<ParamField path="propGetters.getRootProps" type="function">
+  Returns props for the scrollable container element
+  
+  ```tsx
+  (props?: PartProps["root"]["input"]) => PartProps["root"]["output"]
+  ```
+  
+  Returns:
+  - Element props with scroll behavior classes
+  - `ref` callback for container registration
+  - Data attributes: `data-scope="drag-scroll"`, `data-part="root"`, `data-dragging` (when dragging)
+</ParamField>
+
+<ParamField path="propGetters.getItemProps" type="function">
+  Returns props for individual scroll items
+  
+  ```tsx
+  (props?: PartProps["item"]["input"]) => PartProps["item"]["output"]
+  ```
+  
+  Returns:
+  - Element props with snap-center classes
+  - Data attributes: `data-scope="drag-scroll"`, `data-part="item"`
+</ParamField>
+
+<ParamField path="propGetters.getBackButtonProps" type="function">
+  Returns props for the previous/back scroll button
+  
+  ```tsx
+  (props?: PartProps["backButton"]["input"]) => PartProps["backButton"]["output"]
+  ```
+  
+  Returns:
+  - Button props with click handler to scroll backward
+  - `disabled` when at the start of scroll
+  - Data attributes: `data-scope="drag-scroll"`, `data-part="back-button"`, `data-disabled`
+</ParamField>
+
+<ParamField path="propGetters.getNextButtonProps" type="function">
+  Returns props for the next/forward scroll button
+  
+  ```tsx
+  (props?: PartProps["nextButton"]["input"]) => PartProps["nextButton"]["output"]
+  ```
+  
+  Returns:
+  - Button props with click handler to scroll forward
+  - `disabled` when at the end of scroll
+  - Data attributes: `data-scope="drag-scroll"`, `data-part="next-button"`, `data-disabled`
+</ParamField>
+
+### containerRef
+
+<ParamField path="containerRef" type="React.RefObject<TElement | null>">
+  Ref object containing the scrollable container element
+</ParamField>
+
+### storeApi
+
+<ParamField path="storeApi" type="StoreApi<DragScrollStore<TElement>>">
+  Store API for accessing and subscribing to drag scroll state
+</ParamField>
+
+### useDragScrollStore
+
+<ParamField path="useDragScrollStore" type="function">
+  Hook for subscribing to specific slices of the drag scroll state
+  
+  ```tsx
+  const isDragging = useDragScrollStore((state) => state.isDragging);
+  const canGoToNext = useDragScrollStore((state) => state.canGoToNext);
+  ```
+</ParamField>
+
+### disableInternalStateSubscription
+
+<ParamField path="disableInternalStateSubscription" type="boolean">
+  The resolved value of the `disableInternalStateSubscription` option
+</ParamField>
+
+## Types
+
+### DragScrollStore
+
+```tsx
+type DragScrollStore<TElement extends HTMLElement> = {
+  // State
+  canGoToNext: boolean;
+  canGoToPrev: boolean;
+  isDragging: boolean;
+  
+  // Actions
+  actions: {
+    cleanupDragListeners: () => void;
+    goToNext: () => void;
+    goToPrev: () => void;
+    handleMouseDown: (event: MouseEvent) => void;
+    handleMouseMove: (event: MouseEvent) => void;
+    handleMouseUpOrLeave: () => void;
+    handleScroll: () => void;
+    initializeResizeObserver: () => (() => void) | undefined;
+    setContainerRef: (element: TElement | null) => void;
+    updateScrollState: () => void;
+  };
+};
+```
+
+### DragScrollState
+
+```tsx
+type DragScrollState = {
+  /** Whether the container can scroll forward (right/down) */
+  canGoToNext: boolean;
+  /** Whether the container can scroll backward (left/up) */
+  canGoToPrev: boolean;
+  /** Whether the user is currently dragging */
+  isDragging: boolean;
+};
+```
+
+### DragScrollActions
+
+```tsx
+type DragScrollActions<TElement extends HTMLElement> = {
+  actions: {
+    cleanupDragListeners: () => void;
+    goToNext: () => void;
+    goToPrev: () => void;
+    handleMouseDown: (event: MouseEvent) => void;
+    handleMouseMove: (event: MouseEvent) => void;
+    handleMouseUpOrLeave: () => void;
+    handleScroll: () => void;
+    initializeResizeObserver: () => (() => void) | undefined;
+    setContainerRef: (element: TElement | null) => void;
+    updateScrollState: () => void;
+  };
+};
+```
+
+### UseDragScrollProps
+
+```tsx
+interface UseDragScrollProps {
+  orientation?: "horizontal" | "vertical" | "both";
+  scrollAmount?: "item" | number;
+  usage?: "allScreens" | "desktopOnly" | "mobileAndTabletOnly";
+  classNames?: {
+    base?: string;
+    item?: string;
+  };
+  disableInternalStateSubscription?: boolean;
+}
+```
+
+### UseDragScrollResult
+
+```tsx
+interface UseDragScrollResult<TElement extends HTMLElement> {
+  containerRef: React.RefObject<TElement | null>;
+  propGetters: DragScrollPropGetters<TElement>;
+  storeApi: ReturnType<typeof createDragScrollStore<TElement>>;
+  useDragScrollStore: typeof useDragScrollStoreContext;
+  disableInternalStateSubscription: boolean;
+}
+```

@@ -1,0 +1,439 @@
+---
+title: Presence
+description: Animate component mount and unmount with CSS animations or transitions
+---
+
+The Presence component enables smooth animations when components enter and exit the DOM, supporting both CSS animations and transitions with full lifecycle control.
+
+## When to Use
+
+- Animate component entrance and exit
+- Create smooth expand/collapse animations
+- Handle modal and dialog transitions
+- Animate list item additions and removals
+- Build custom animated components with mount/unmount states
+
+## Basic Usage
+
+<CodeGroup>
+```tsx CSS Animation
+import { Presence } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function AnimatedBox() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(!isOpen)}>Toggle</button>
+      <Presence present={isOpen}>
+        <div className="animated-box">
+          Content with animation
+        </div>
+      </Presence>
+    </div>
+  );
+}
+
+// CSS
+// .animated-box {
+//   animation: fadeIn 300ms ease-out;
+// }
+//
+// .animated-box[data-state="unmountSuspended"] {
+//   animation: fadeOut 300ms ease-out;
+// }
+```
+
+```tsx CSS Transition
+import { Presence } from "@zayne-labs/ui-react";
+
+function TransitionBox() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(!isOpen)}>Toggle</button>
+      <Presence present={isOpen} variant="transition">
+        <div className="transition-box">
+          Content with transition
+        </div>
+      </Presence>
+    </div>
+  );
+}
+
+// CSS
+// .transition-box {
+//   opacity: 0;
+//   transition: opacity 300ms, transform 300ms;
+// }
+//
+// .transition-box[data-transition="active"] {
+//   opacity: 1;
+// }
+```
+</CodeGroup>
+
+## Component API
+
+<ParamField path="present" type="boolean" required>
+  Whether the component should be present (mounted) or not
+</ParamField>
+
+<ParamField path="children" type="React.ReactElement | ((context: RenderPropContext) => React.ReactElement)">
+  Element to animate. Can be a render function receiving animation state
+</ParamField>
+
+<ParamField path="variant" type="'animation' | 'transition'" default="animation">
+  Type of CSS animation to use. 'animation' for @keyframes, 'transition' for CSS transitions
+</ParamField>
+
+<ParamField path="onExitComplete" type="() => void">
+  Callback fired when the exit animation completes and element unmounts
+</ParamField>
+
+<ParamField path="forceMount" type="boolean" default="false">
+  Always render the element, even when not present. Useful for testing or specific animation needs
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS classes to apply to the wrapper
+</ParamField>
+
+### Render Prop Context
+
+<ParamField path="isPresent" type="boolean">
+  Current presence state (mounted or not)
+</ParamField>
+
+<ParamField path="isPresentOrIsTransitionComplete" type="boolean">
+  True if present or transition variant is complete
+</ParamField>
+
+<ParamField path="shouldStartTransition" type="boolean">
+  Whether the transition should start (for transition variant)
+</ParamField>
+
+### Data Attributes
+
+The component adds these data attributes for styling:
+
+- `data-state`: Current state (`"mounted"` | `"unmountSuspended"` | `"unmounted"`)
+- `data-present`: Whether currently present (`"true"` | `undefined`)
+- `data-present-or-transition-complete`: Transition completion state
+- `data-transition`: Transition state (`"active"` | `"inactive"`) - only for `variant="transition"`
+
+## Examples
+
+### Fade Animation
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function FadeExample() {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setShow(!show)}>Toggle</button>
+      <Presence present={show} onExitComplete={() => console.log("Exit complete")}>
+        <div className="fade-box">
+          I fade in and out
+        </div>
+      </Presence>
+    </div>
+  );
+}
+```
+
+```css
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-box {
+  animation: fadeIn 300ms ease-out;
+}
+
+.fade-box[data-state="unmountSuspended"] {
+  animation: fadeOut 300ms ease-out;
+}
+```
+
+### Slide and Fade
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function SlideExample({ isOpen, onClose }) {
+  return (
+    <Presence present={isOpen} onExitComplete={onClose}>
+      <div className="slide-panel">
+        <h2>Side Panel</h2>
+        <p>Content here</p>
+      </div>
+    </Presence>
+  );
+}
+```
+
+```css
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.slide-panel {
+  animation: slideIn 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-panel[data-state="unmountSuspended"] {
+  animation: slideOut 300ms ease-in;
+}
+```
+
+### Using Transition Variant
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function TransitionExample() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setIsExpanded(!isExpanded)}>Expand</button>
+      <Presence present={isExpanded} variant="transition">
+        <div className="expandable">
+          <p>This content expands smoothly</p>
+        </div>
+      </Presence>
+    </div>
+  );
+}
+```
+
+```css
+.expandable {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 300ms ease-out,
+    opacity 300ms ease-out;
+}
+
+.expandable[data-transition="active"] {
+  max-height: 500px;
+  opacity: 1;
+}
+```
+
+### Render Prop Pattern
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function RenderPropExample({ isVisible }) {
+  return (
+    <Presence present={isVisible}>
+      {({ isPresent, shouldStartTransition }) => (
+        <div
+          className="dynamic-box"
+          style={{
+            opacity: isPresent ? 1 : 0,
+            transform: shouldStartTransition ? 'scale(1)' : 'scale(0.95)',
+          }}
+        >
+          Content
+        </div>
+      )}
+    </Presence>
+  );
+}
+```
+
+### Modal with Backdrop
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function Modal({ isOpen, onClose, children }) {
+  return (
+    <Presence present={isOpen} onExitComplete={onClose}>
+      <div className="modal-container">
+        <div className="modal-backdrop" onClick={onClose} />
+        <div className="modal-content">
+          {children}
+        </div>
+      </div>
+    </Presence>
+  );
+}
+```
+
+```css
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 200ms ease-out;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  animation: slideUp 300ms ease-out;
+}
+```
+
+## Comparison to Native Patterns
+
+### Traditional Conditional Rendering
+
+```tsx
+function Box({ isOpen }) {
+  if (!isOpen) return null;
+
+  return <div className="box">Content</div>;
+}
+```
+
+<Info>This provides no animation - the element immediately appears/disappears.</Info>
+
+### With Presence
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function Box({ isOpen }) {
+  return (
+    <Presence present={isOpen}>
+      <div className="box">Content</div>
+    </Presence>
+  );
+}
+```
+
+<Info>The element smoothly animates in and out based on your CSS.</Info>
+
+## Common Use Cases
+
+### Collapsible Section
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function Collapsible({ title, children }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="collapsible">
+      <button onClick={() => setIsOpen(!isOpen)}>
+        {title}
+        <span>{isOpen ? '−' : '+'}</span>
+      </button>
+      <Presence present={isOpen} variant="transition">
+        <div className="collapsible-content">
+          {children}
+        </div>
+      </Presence>
+    </div>
+  );
+}
+```
+
+### Notification Toast
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function Toast({ message, isVisible, onDismiss }) {
+  return (
+    <Presence present={isVisible} onExitComplete={onDismiss}>
+      <div className="toast">
+        {message}
+        <button onClick={onDismiss}>×</button>
+      </div>
+    </Presence>
+  );
+}
+```
+
+### Animated List Items
+
+```tsx
+import { Presence } from "@zayne-labs/ui-react";
+
+function AnimatedListItem({ item, isVisible }) {
+  return (
+    <Presence present={isVisible}>
+      <li className="list-item">{item.name}</li>
+    </Presence>
+  );
+}
+
+function List({ items, visibleIds }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <AnimatedListItem
+          key={item.id}
+          item={item}
+          isVisible={visibleIds.includes(item.id)}
+        />
+      ))}
+    </ul>
+  );
+}
+```
+
+<Note>
+Based on [Radix UI Presence](https://github.com/radix-ui/primitives/blob/main/packages/react/presence/src/presence.tsx) with enhanced variant support for both CSS animations and transitions.
+</Note>

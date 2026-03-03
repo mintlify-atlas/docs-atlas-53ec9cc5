@@ -1,0 +1,274 @@
+---
+title: Switch
+description: API reference for the Switch component - declarative conditional rendering with multiple cases.
+---
+
+## Overview
+
+The `Switch` component provides pattern matching for conditional rendering, similar to JavaScript's switch statement. It supports both value-based matching and boolean condition matching.
+
+## Import
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+// or
+import { SwitchRoot, SwitchMatch, SwitchDefault } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<CardGroup cols={2}>
+  <Card title="Switch.Root" icon="box">
+    The root component that controls which case to render
+  </Card>
+  <Card title="Switch.Match" icon="check-double">
+    Defines a case to potentially render
+  </Card>
+  <Card title="Switch.Default" icon="circle">
+    Defines the default case when no match is found
+  </Card>
+</CardGroup>
+
+## Switch.Root
+
+### Props
+
+<ParamField path="children" type="React.ReactElement | React.ReactElement[]" required>
+  Must contain `Switch.Match` components and optionally one `Switch.Default`.
+</ParamField>
+
+<ParamField path="value" type="TValue">
+  The value to match against. When provided, works like `switch(value)`. When omitted, works like `switch(true)` and matches the first truthy `when` prop.
+</ParamField>
+
+## Switch.Match
+
+### Props
+
+<ParamField path="when" type="false | TWhen | null | undefined" required>
+  The condition to match. In value mode, this is compared with the root's value. In boolean mode, the first truthy `when` is rendered.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render when matched. Can be a render function that receives the matched value.
+</ParamField>
+
+## Switch.Default
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  Content to render when no match is found.
+</ParamField>
+
+## Usage Examples
+
+### Value-Based Matching
+
+```tsx
+function StatusBadge({ status }) {
+  return (
+    <Switch.Root value={status}>
+      <Switch.Match when="active">
+        <Badge color="green">Active</Badge>
+      </Switch.Match>
+      
+      <Switch.Match when="pending">
+        <Badge color="yellow">Pending</Badge>
+      </Switch.Match>
+      
+      <Switch.Match when="inactive">
+        <Badge color="gray">Inactive</Badge>
+      </Switch.Match>
+      
+      <Switch.Default>
+        <Badge>Unknown</Badge>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Boolean Mode (switch true)
+
+```tsx
+function UserGreeting({ user, isLoading, error }) {
+  return (
+    <Switch.Root>
+      <Switch.Match when={isLoading}>
+        <Spinner />
+      </Switch.Match>
+      
+      <Switch.Match when={error}>
+        {(error) => <ErrorMessage error={error} />}
+      </Switch.Match>
+      
+      <Switch.Match when={user}>
+        {(user) => <div>Welcome, {user.name}!</div>}
+      </Switch.Match>
+      
+      <Switch.Default>
+        <LoginPrompt />
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### With Render Functions
+
+```tsx
+<Switch.Root value={userRole}>
+  <Switch.Match when="admin">
+    {(role) => <AdminDashboard role={role} />}
+  </Switch.Match>
+  
+  <Switch.Match when="moderator">
+    {(role) => <ModeratorPanel role={role} />}
+  </Switch.Match>
+  
+  <Switch.Match when="user">
+    {(role) => <UserDashboard role={role} />}
+  </Switch.Match>
+  
+  <Switch.Default>
+    <GuestView />
+  </Switch.Default>
+</Switch.Root>
+```
+
+### Numeric Values
+
+```tsx
+function RatingDisplay({ rating }) {
+  return (
+    <Switch.Root value={rating}>
+      <Switch.Match when={5}>
+        <div>⭐⭐⭐⭐⭐ Excellent!</div>
+      </Switch.Match>
+      
+      <Switch.Match when={4}>
+        <div>⭐⭐⭐⭐ Great!</div>
+      </Switch.Match>
+      
+      <Switch.Match when={3}>
+        <div>⭐⭐⭐ Good</div>
+      </Switch.Match>
+      
+      <Switch.Default>
+        <div>⭐⭐ Needs improvement</div>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Complex Conditions
+
+```tsx
+function DataView({ data, isEmpty, hasError }) {
+  return (
+    <Switch.Root>
+      <Switch.Match when={hasError}>
+        <ErrorState />
+      </Switch.Match>
+      
+      <Switch.Match when={isEmpty}>
+        <EmptyState />
+      </Switch.Match>
+      
+      <Switch.Match when={data && data.length > 100}>
+        {(data) => <VirtualizedList data={data} />}
+      </Switch.Match>
+      
+      <Switch.Match when={data}>
+        {(data) => <RegularList data={data} />}
+      </Switch.Match>
+      
+      <Switch.Default>
+        <LoadingState />
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Nested Switches
+
+```tsx
+<Switch.Root value={theme}>
+  <Switch.Match when="light">
+    <Switch.Root value={colorScheme}>
+      <Switch.Match when="blue">
+        <LightBlueTheme />
+      </Switch.Match>
+      <Switch.Match when="green">
+        <LightGreenTheme />
+      </Switch.Match>
+      <Switch.Default>
+        <LightDefaultTheme />
+      </Switch.Default>
+    </Switch.Root>
+  </Switch.Match>
+  
+  <Switch.Match when="dark">
+    <DarkTheme />
+  </Switch.Match>
+  
+  <Switch.Default>
+    <SystemTheme />
+  </Switch.Default>
+</Switch.Root>
+```
+
+### Without Default
+
+```tsx
+// Returns null if no match
+<Switch.Root value={notification.type}>
+  <Switch.Match when="info">
+    <InfoIcon />
+  </Switch.Match>
+  
+  <Switch.Match when="warning">
+    <WarningIcon />
+  </Switch.Match>
+  
+  <Switch.Match when="error">
+    <ErrorIcon />
+  </Switch.Match>
+</Switch.Root>
+```
+
+### First Match Wins
+
+```tsx
+// Only the first truthy condition renders
+<Switch.Root>
+  <Switch.Match when={count > 10}>
+    <div>More than 10</div>
+  </Switch.Match>
+  
+  <Switch.Match when={count > 5}>
+    <div>More than 5</div>
+  </Switch.Match>
+  
+  <Switch.Match when={count > 0}>
+    <div>Greater than zero</div>
+  </Switch.Match>
+  
+  <Switch.Default>
+    <div>Zero or negative</div>
+  </Switch.Default>
+</Switch.Root>
+```
+
+## Notes
+
+- When `value` is provided, it works like `switch(value)` matching against each `when` prop
+- When `value` is omitted, it works like `switch(true)` rendering the first truthy `when`
+- Only one `Switch.Default` component is allowed
+- First matching case wins (short-circuits like a real switch statement)
+- Render functions receive the matched value with proper TypeScript narrowing
+- Returns `null` if no match is found and no default is provided
+- All comparisons use strict equality (`===`) in value mode

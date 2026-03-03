@@ -1,0 +1,192 @@
+---
+title: For
+description: API reference for the For component - declaratively render lists with type-safe iteration.
+---
+
+## Overview
+
+The `For` component provides a declarative way to render lists in React with full TypeScript support. It handles empty states, supports both arrays and numeric ranges, and offers a wrapper variant for semantic HTML.
+
+## Import
+
+```tsx
+import { For, ForWithWrapper } from "@zayne-labs/ui-react";
+```
+
+## For
+
+### Props
+
+<ParamField path="each" type="readonly unknown[] | number" required>
+  The array to iterate over, or a number to create a range from 0 to n-1.
+</ParamField>
+
+<ParamField path="children" type="(item: TItem, index: number, array: TItem[]) => React.ReactNode">
+  Render function called for each item. Receives the item, index, and the full array.
+</ParamField>
+
+<ParamField path="renderItem" type="(item: TItem, index: number, array: TItem[]) => React.ReactNode">
+  Alternative to `children`. Same signature and behavior.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to render when the array is empty or the number is 0.
+</ParamField>
+
+## ForWithWrapper
+
+Extends `For` with a wrapper element for semantic HTML lists.
+
+### Additional Props
+
+<ParamField path="as" type="React.ElementType" default="ul">
+  The wrapper element type to render.
+</ParamField>
+
+<ParamField path="displayFallBackWhenEmpty" type="boolean" default="false">
+  When true, shows the fallback instead of an empty wrapper when the list is empty.
+</ParamField>
+
+All other props from the wrapper element (like `className`, `style`, etc.) are also supported.
+
+## Type Definitions
+
+```tsx
+type ForRenderProps<TArray extends ArrayOrNumber> = 
+  | { children: RenderPropFn<TArray>; renderItem?: never }
+  | { children?: never; renderItem: RenderPropFn<TArray> };
+
+type RenderPropFn<TArray> = (
+  item: GetArrayItemType<TArray>,
+  index: number,
+  array: Array<GetArrayItemType<TArray>>
+) => React.ReactNode;
+```
+
+## Usage Examples
+
+### Basic List Rendering
+
+```tsx
+const users = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Charlie' }
+];
+
+<For each={users}>
+  {(user) => (
+    <div key={user.id}>{user.name}</div>
+  )}
+</For>
+```
+
+### With Fallback
+
+```tsx
+<For each={items} fallback={<p>No items found</p>}>
+  {(item, index) => (
+    <div key={item.id}>
+      {index + 1}. {item.title}
+    </div>
+  )}
+</For>
+```
+
+### Using renderItem Prop
+
+```tsx
+<For
+  each={products}
+  renderItem={(product, index) => (
+    <ProductCard key={product.id} product={product} />
+  )}
+/>
+```
+
+### Numeric Range
+
+```tsx
+<For each={5}>
+  {(index) => <div key={index}>Item {index}</div>}
+</For>
+// Renders: Item 0, Item 1, Item 2, Item 3, Item 4
+```
+
+### With Wrapper Element
+
+```tsx
+<ForWithWrapper
+  as="ul"
+  each={todos}
+  className="todo-list"
+>
+  {(todo) => (
+    <li key={todo.id}>
+      {todo.title}
+    </li>
+  )}
+</ForWithWrapper>
+```
+
+### Custom Wrapper
+
+```tsx
+<ForWithWrapper
+  as="div"
+  each={images}
+  className="image-grid"
+  displayFallBackWhenEmpty
+  fallback={<EmptyGallery />}
+>
+  {(image) => (
+    <img key={image.id} src={image.url} alt={image.alt} />
+  )}
+</ForWithWrapper>
+```
+
+### Accessing Index and Array
+
+```tsx
+<For each={messages}>
+  {(message, index, allMessages) => (
+    <div key={message.id}>
+      <span>Message {index + 1} of {allMessages.length}</span>
+      <p>{message.text}</p>
+    </div>
+  )}
+</For>
+```
+
+### Table Rows
+
+```tsx
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <For each={users}>
+      {(user) => (
+        <tr key={user.id}>
+          <td>{user.name}</td>
+          <td>{user.email}</td>
+          <td>{user.role}</td>
+        </tr>
+      )}
+    </For>
+  </tbody>
+</table>
+```
+
+## Notes
+
+- The component treats `null`, `undefined`, empty arrays, and `0` as empty conditions
+- When using a number, it creates an array from 0 to n-1 (like `Array(n).keys()`)
+- The `key` prop should be provided by your render function, not on the `For` component
+- `ForWithWrapper` renders the wrapper element even when empty unless `displayFallBackWhenEmpty` is true
+- Either `children` or `renderItem` must be provided, but not both

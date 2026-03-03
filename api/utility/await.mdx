@@ -1,0 +1,201 @@
+---
+title: Await
+description: API reference for the Await component - handle asynchronous operations with built-in suspense and error boundaries.
+---
+
+## Overview
+
+The `Await` component provides a declarative way to handle asynchronous operations in React, with built-in support for Suspense and Error Boundaries. It automatically manages loading, success, and error states.
+
+## Import
+
+```tsx
+import { Await } from "@zayne-labs/ui-react";
+// or
+import { AwaitRoot, AwaitSuccess, AwaitError, AwaitPending } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<CardGroup cols={2}>
+  <Card title="Await.Root" icon="box">
+    The root component that wraps the promise handling logic
+  </Card>
+  <Card title="Await.Success" icon="check">
+    Renders when the promise resolves successfully
+  </Card>
+  <Card title="Await.Error" icon="triangle-exclamation">
+    Renders when the promise rejects with an error
+  </Card>
+  <Card title="Await.Pending" icon="spinner">
+    Renders while the promise is pending
+  </Card>
+</CardGroup>
+
+## Await.Root
+
+### Props
+
+<ParamField path="promise" type="Promise<TValue>" required>
+  The promise to await and resolve.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((result: TValue) => React.ReactNode)" required>
+  The content to render on success. Can be a render function that receives the resolved value.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Fallback UI to display while the promise is pending (used with Suspense).
+</ParamField>
+
+<ParamField path="errorFallback" type="React.ReactNode | ((props: ErrorFallbackProps) => React.ReactNode)">
+  Fallback UI to display when the promise rejects (used with ErrorBoundary).
+</ParamField>
+
+<ParamField path="withSuspense" type="boolean" default="true">
+  Whether to wrap the component with React Suspense.
+</ParamField>
+
+<ParamField path="withErrorBoundary" type="boolean" default="true">
+  Whether to wrap the component with an ErrorBoundary.
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  When true, merges props into the child element instead of rendering a wrapper.
+</ParamField>
+
+## Await.Success
+
+### Props
+
+<ParamField path="children" type="React.ReactNode | ((result: TValue) => React.ReactNode)" required>
+  The content to render when the promise resolves. Can be a render function that receives the resolved value.
+</ParamField>
+
+## Await.Error
+
+### Props
+
+<ParamField path="children" type="React.ReactNode | ((context: ErrorBoundaryContextType) => React.ReactNode)" required>
+  The content to render when an error occurs. Can be a render function that receives error context.
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  When true, merges props into the child element instead of rendering a wrapper.
+</ParamField>
+
+## Await.Pending
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The content to display while the promise is pending.
+</ParamField>
+
+## Hook
+
+### useAwaitContext
+
+```tsx
+function useAwaitContext<TValue>(): AwaitContextType<TValue>
+```
+
+Access the await context within child components.
+
+**Returns:**
+
+<ResponseField name="promise" type="Promise<TValue>">
+  The original promise passed to Await.Root.
+</ResponseField>
+
+<ResponseField name="result" type="TValue">
+  The resolved value of the promise.
+</ResponseField>
+
+## Type Definitions
+
+```tsx
+type AwaitContextType<TValue = unknown> = {
+  promise: Promise<TValue>;
+  result: TValue;
+};
+
+type ErrorFallbackProps = {
+  error: unknown;
+  resetErrorBoundary: (...args: unknown[]) => void;
+};
+```
+
+## Usage Examples
+
+### Basic Usage with Render Function
+
+```tsx
+const userPromise = fetchUser();
+
+<Await.Root promise={userPromise}>
+  {(user) => <div>Welcome, {user.name}!</div>}
+</Await.Root>
+```
+
+### With Custom Fallbacks
+
+```tsx
+<Await.Root
+  promise={dataPromise}
+  fallback={<LoadingSpinner />}
+  errorFallback={({ error, resetErrorBoundary }) => (
+    <div>
+      <p>Error: {error.message}</p>
+      <button onClick={resetErrorBoundary}>Retry</button>
+    </div>
+  )}
+>
+  {(data) => <DataDisplay data={data} />}
+</Await.Root>
+```
+
+### Using Component Parts
+
+```tsx
+<Await.Root promise={productPromise}>
+  <Await.Pending>
+    <Skeleton />
+  </Await.Pending>
+
+  <Await.Success>
+    {(product) => (
+      <div>
+        <h1>{product.name}</h1>
+        <p>{product.description}</p>
+      </div>
+    )}
+  </Await.Success>
+
+  <Await.Error>
+    {({ error, resetErrorBoundary }) => (
+      <ErrorDisplay error={error} onRetry={resetErrorBoundary} />
+    )}
+  </Await.Error>
+</Await.Root>
+```
+
+### Without Suspense or Error Boundary
+
+```tsx
+<Await.Root
+  promise={configPromise}
+  withSuspense={false}
+  withErrorBoundary={false}
+>
+  {(config) => <ConfigPanel config={config} />}
+</Await.Root>
+```
+
+### Using asChild
+
+```tsx
+<Await.Root promise={userPromise} asChild>
+  <UserCard />
+</Await.Root>
+```

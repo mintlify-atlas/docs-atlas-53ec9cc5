@@ -1,0 +1,326 @@
+---
+title: Carousel
+description: API reference for the Carousel component
+---
+
+A feature-rich carousel component with auto-slide, navigation controls, and indicators.
+
+## Import
+
+```tsx
+import { Carousel } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<ResponseField name="Carousel.Root" type="component">
+  The root container with state management
+</ResponseField>
+
+<ResponseField name="Carousel.ItemList" type="component">
+  Container for carousel items with transition support
+</ResponseField>
+
+<ResponseField name="Carousel.Item" type="component">
+  Individual carousel slide
+</ResponseField>
+
+<ResponseField name="Carousel.Controls" type="component">
+  Navigation button container
+</ResponseField>
+
+<ResponseField name="Carousel.Button" type="component">
+  Individual navigation button (prev/next)
+</ResponseField>
+
+<ResponseField name="Carousel.Caption" type="component">
+  Overlay caption for slides
+</ResponseField>
+
+<ResponseField name="Carousel.IndicatorList" type="component">
+  Container for slide indicators
+</ResponseField>
+
+<ResponseField name="Carousel.Indicator" type="component">
+  Individual slide indicator button
+</ResponseField>
+
+## Carousel.Root
+
+The root container that manages carousel state and auto-slide functionality.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="div">
+  The element type to render as
+</ParamField>
+
+<ParamField path="images" type="ImagesType" required>
+  Array of images to display. Can be an array of strings (URLs) or an array of objects with string properties
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Child components
+</ParamField>
+
+<ParamField path="hasAutoSlide" type="boolean">
+  Enable automatic slide transitions
+</ParamField>
+
+<ParamField path="autoSlideInterval" type="number">
+  Interval in milliseconds between auto-slide transitions
+</ParamField>
+
+<ParamField path="shouldPauseOnHover" type="boolean">
+  Pause auto-slide when hovering over the carousel
+</ParamField>
+
+<ParamField path="onSlideBtnClick" type="() => void">
+  Callback fired when navigation buttons are clicked
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Custom class names for carousel parts
+  
+  - `base?: string` - Root container classes
+  - `scrollContainer?: string` - Scroll container classes
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="content"`
+- `data-slot="carousel-content"`
+
+## Carousel.ItemList
+
+Container for carousel items with smooth transition animations.
+
+### Props
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the item list
+</ParamField>
+
+<ParamField path="each" type="TArray">
+  Optional array to iterate over. If not provided, uses the images array from Carousel.Root
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | RenderPropFn">
+  Child components or render function
+  
+  When using a render function, it receives:
+  - `image` - Current array item
+  - `index` - Current index
+  - `array` - Full array
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="item-list"`
+- `data-slot="carousel-item-list"`
+
+## Carousel.Item
+
+Individual carousel slide.
+
+### Props
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the item. Default styles include snap-center and full width
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Content to display in the slide
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="item"`
+- `data-slot="carousel-item"`
+
+## Carousel.Controls
+
+Container for previous and next navigation buttons.
+
+### Props
+
+<ParamField path="classNames" type="object">
+  Custom class names for control parts
+  
+  - `base?: string` - Controls container classes
+  - `iconContainer?: string` - Icon wrapper classes
+  - `defaultIcon?: string` - Default chevron icon classes
+</ParamField>
+
+<ParamField path="icon" type="object">
+  Custom icon configuration
+  
+  Option 1: Single icon with rotation
+  - `icon?: React.ReactElement` - Custom icon element
+  - `iconType: "prevIcon" | "nextIcon"` - Which direction is the base icon
+  
+  Option 2: Separate icons
+  - `prev?: React.ReactElement` - Previous button icon
+  - `next?: React.ReactElement` - Next button icon
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="controls"`
+- `data-slot="carousel-controls"`
+
+## Carousel.Button
+
+Individual navigation button for previous or next slide.
+
+### Props
+
+<ParamField path="variant" type="'prev' | 'next'" required>
+  Button direction
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Custom class names for button parts
+  
+  - `base?: string` - Button container classes
+  - `iconContainer?: string` - Icon wrapper classes  
+  - `defaultIcon?: string` - Default chevron icon classes
+</ParamField>
+
+<ParamField path="icon" type="React.ReactElement">
+  Custom icon element to display
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="button"`
+- `data-slot="carousel-button"`
+
+## Carousel.Caption
+
+Overlay caption element for slides.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="div">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply. Default includes absolute positioning and z-10
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Caption content
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="caption"`
+- `data-slot="carousel-caption"`
+
+## Carousel.IndicatorList
+
+Container for slide indicator buttons.
+
+### Props
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the indicator list
+</ParamField>
+
+<ParamField path="each" type="TArray">
+  Optional array to iterate over. If not provided, uses the images array from Carousel.Root
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | RenderPropFn">
+  Child components or render function
+  
+  When using a render function, it receives:
+  - `image` - Current array item
+  - `index` - Current index
+  - `array` - Full array
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="indicator-list"`
+- `data-slot="carousel-indicator-list"`
+
+## Carousel.Indicator
+
+Individual slide indicator button.
+
+### Props
+
+<ParamField path="currentIndex" type="number" required>
+  The slide index this indicator represents
+</ParamField>
+
+<ParamField path="classNames" type="object">
+  Custom class names for indicator parts
+  
+  - `base?: string` - Indicator button classes
+  - `isActive?: string` - Active state classes
+</ParamField>
+
+### Data Attributes
+
+- `data-scope="carousel"`
+- `data-part="indicator"`
+- `data-slot="carousel-indicator"`
+
+## Types
+
+### ImagesType
+
+```tsx
+type ImagesType = Array<Record<string, string>> | string[];
+```
+
+### CarouselStore
+
+```tsx
+type CarouselStore<TImages extends ImagesType> = {
+  currentSlide: number;
+  maxSlide: number;
+  images: TImages;
+  actions: {
+    goToNextSlide: () => void;
+    goToPreviousSlide: () => void;
+    goToSlide: (newValue: number) => void;
+  };
+};
+```
+
+### CarouselStoreApi
+
+```tsx
+import type { StoreApi } from "@zayne-labs/toolkit-core";
+
+type CarouselStoreApi<TImages extends ImagesType> = StoreApi<CarouselStore<TImages>>;
+```
+
+## Hooks
+
+### useCarouselStoreContext
+
+Access the carousel store from within carousel components.
+
+```tsx
+import { useCarouselStoreContext } from "@zayne-labs/ui-react";
+
+function CustomCarouselComponent() {
+  const currentSlide = useCarouselStoreContext((state) => state.currentSlide);
+  const { goToNextSlide } = useCarouselStoreContext((state) => state.actions);
+  
+  return <div>Current slide: {currentSlide}</div>;
+}
+```

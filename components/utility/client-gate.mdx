@@ -1,0 +1,261 @@
+---
+title: ClientGate
+description: Conditionally render content only after client-side hydration
+---
+
+The ClientGate component ensures content is rendered only after JavaScript has loaded client-side, with optional fallback support for server-side rendering or no-JS environments.
+
+## When to Use
+
+- Render components that depend on browser APIs (window, document, etc.)
+- Prevent hydration mismatches from client-only features
+- Show skeleton loaders during hydration
+- Progressively enhance server-rendered content
+- Handle components that require JavaScript to function
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Simple Usage
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <ClientGate fallback={<div>Loading...</div>}>
+      <InteractiveChart />
+    </ClientGate>
+  );
+}
+```
+
+```tsx Render Function
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <ClientGate fallback={<ChartSkeleton />}>
+      {() => <InteractiveChart />}
+    </ClientGate>
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+<ParamField path="children" type="React.ReactNode | (() => React.ReactNode)" required>
+  Content to render after client-side hydration. Can be a render function for deferred initialization
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to show during SSR or before hydration. Should match the dimensions of the hydrated content to avoid layout shift
+</ParamField>
+
+<Note>
+You are encouraged to add a fallback that matches the dimensions of the client-rendered children to avoid content layout shift.
+</Note>
+
+## Examples
+
+### Browser API-Dependent Component
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function GeolocationDisplay() {
+  return (
+    <ClientGate fallback={<div>Detecting location...</div>}>
+      {() => {
+        const [location, setLocation] = useState(null);
+
+        useEffect(() => {
+          navigator.geolocation.getCurrentPosition((position) => {
+            setLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          });
+        }, []);
+
+        return location ? (
+          <div>
+            Lat: {location.lat}, Lng: {location.lng}
+          </div>
+        ) : (
+          <div>Loading location...</div>
+        );
+      }}
+    </ClientGate>
+  );
+}
+```
+
+### Chart with Skeleton Fallback
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function ChartSkeleton() {
+  return (
+    <div className="w-full h-[400px] bg-gray-100 animate-pulse rounded-lg" />
+  );
+}
+
+function AnalyticsDashboard() {
+  return (
+    <div>
+      <h1>Sales Analytics</h1>
+      <ClientGate fallback={<ChartSkeleton />}>
+        {() => <RechartsComponent data={salesData} />}
+      </ClientGate>
+    </div>
+  );
+}
+```
+
+### Third-Party Widget
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function SocialEmbed() {
+  return (
+    <ClientGate
+      fallback={
+        <div className="w-full h-[500px] flex items-center justify-center bg-gray-50">
+          <p>Loading embed...</p>
+        </div>
+      }
+    >
+      {() => (
+        <div>
+          <TwitterEmbed tweetId="123456789" />
+        </div>
+      )}
+    </ClientGate>
+  );
+}
+```
+
+### Window Size Dependent Component
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+import { useWindowSize } from "@zayne-labs/toolkit-react";
+
+function ResponsiveComponent() {
+  return (
+    <ClientGate fallback={<div className="h-screen">Loading...</div>}>
+      {() => {
+        const { width } = useWindowSize();
+
+        return (
+          <div>
+            {width > 768 ? (
+              <DesktopLayout />
+            ) : (
+              <MobileLayout />
+            )}
+          </div>
+        );
+      }}
+    </ClientGate>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Traditional Approach
+
+```tsx
+function ChartComponent() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div>Loading chart...</div>;
+  }
+
+  return <Chart />;
+}
+```
+
+### With ClientGate
+
+```tsx
+function ChartComponent() {
+  return (
+    <ClientGate fallback={<div>Loading chart...</div>}>
+      <Chart />
+    </ClientGate>
+  );
+}
+```
+
+## Common Use Cases
+
+### Progressive Enhancement
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function ArticlePage({ article }) {
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      <div>{article.content}</div>
+
+      {/* Enhanced features only on client */}
+      <ClientGate fallback={null}>
+        <ShareButtons />
+        <CommentSection />
+        <RelatedArticles />
+      </ClientGate>
+    </article>
+  );
+}
+```
+
+### Preventing Hydration Mismatches
+
+```tsx
+import { ClientGate } from "@zayne-labs/ui-react";
+
+function UserGreeting() {
+  return (
+    <ClientGate fallback={<div>Welcome!</div>}>
+      {() => {
+        const hour = new Date().getHours();
+        const greeting =
+          hour < 12 ? "Good morning"
+          : hour < 18 ? "Good afternoon"
+          : "Good evening";
+
+        return <div>{greeting}!</div>;
+      }}
+    </ClientGate>
+  );
+}
+```
+
+<Warning>
+Avoid using ClientGate for content that should be SEO-friendly. The fallback is what search engines will see.
+</Warning>
+
+## Implementation Details
+
+The component uses the `useIsHydrated` hook internally to detect when the client has hydrated:
+
+```tsx
+function ClientGate(props: ClientGateProps) {
+  const { children, fallback } = props;
+  const isHydrated = useIsHydrated();
+  const resolvedChildren = () => (isFunction(children) ? children() : children);
+
+  return isHydrated ? resolvedChildren() : fallback;
+}
+```

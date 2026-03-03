@@ -1,0 +1,492 @@
+---
+title: Teleport
+description: Render components to different parts of the DOM tree (Portal)
+---
+
+The Teleport component (also known as Portal) renders children into a DOM node that exists outside the parent component's hierarchy, useful for modals, tooltips, and overlays.
+
+## When to Use
+
+- Render modals and dialogs outside the main app container
+- Create tooltips and popovers that break out of overflow containers
+- Implement dropdown menus with proper z-index stacking
+- Render content to specific DOM nodes or selectors
+- Avoid CSS overflow and z-index issues
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Render to Body
+import { Teleport } from "@zayne-labs/ui-react";
+
+function Modal({ isOpen, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <Teleport to="body">
+      <div className="modal-backdrop">
+        <div className="modal-content">
+          {children}
+        </div>
+      </div>
+    </Teleport>
+  );
+}
+```
+
+```tsx Render to Selector
+import { Teleport } from "@zayne-labs/ui-react";
+
+function Notification({ message }) {
+  return (
+    <Teleport to="#notifications">
+      <div className="notification">
+        {message}
+      </div>
+    </Teleport>
+  );
+}
+```
+
+```tsx Render to Element
+import { Teleport } from "@zayne-labs/ui-react";
+import { useRef } from "react";
+
+function CustomPortal() {
+  const containerRef = useRef(null);
+
+  return (
+    <div>
+      <div ref={containerRef} id="portal-container" />
+      <Teleport to={containerRef}>
+        <div>Rendered in portal container</div>
+      </Teleport>
+    </div>
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+<ParamField path="to" type="string | HTMLElement | RefObject<HTMLElement> | null" required>
+  Target destination for rendering. Can be:
+  - CSS selector string (e.g., `"body"`, `"#modal-root"`, `".container"`)
+  - HTMLElement instance
+  - React ref object
+  - Valid HTML tag name (e.g., `"div"`, `"main"`)
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Content to render in the portal
+</ParamField>
+
+<ParamField path="insertPosition" type="InsertPosition">
+  Where to insert the portal relative to the target:
+  - `"beforebegin"`: Before the target element
+  - `"afterbegin"`: First child of target
+  - `"beforeend"`: Last child of target
+  - `"afterend"`: After the target element
+</ParamField>
+
+## Examples
+
+### Modal Dialog
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function App() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Open Modal</button>
+
+      {isOpen && (
+        <Teleport to="body">
+          <div className="modal-overlay" onClick={() => setIsOpen(false)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h2>Modal Title</h2>
+              <p>Modal content goes here</p>
+              <button onClick={() => setIsOpen(false)}>Close</button>
+            </div>
+          </div>
+        </Teleport>
+      )}
+    </div>
+  );
+}
+```
+
+### Tooltip System
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function Tooltip({ children, content }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseEnter = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+    });
+    setIsVisible(true);
+  };
+
+  return (
+    <>
+      <span
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+      </span>
+
+      {isVisible && (
+        <Teleport to="body">
+          <div
+            className="tooltip"
+            style={{
+              position: 'absolute',
+              left: position.x,
+              top: position.y,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            {content}
+          </div>
+        </Teleport>
+      )}
+    </>
+  );
+}
+```
+
+### Dropdown Menu
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useState, useRef } from "react";
+
+function Dropdown({ trigger, children }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleToggle = () => {
+    if (!isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        x: rect.left,
+        y: rect.bottom + 4,
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <>
+      <div ref={triggerRef} onClick={handleToggle}>
+        {trigger}
+      </div>
+
+      {isOpen && (
+        <Teleport to="body">
+          <div
+            className="dropdown-menu"
+            style={{
+              position: 'absolute',
+              left: position.x,
+              top: position.y,
+            }}
+          >
+            {children}
+          </div>
+        </Teleport>
+      )}
+    </>
+  );
+}
+```
+
+### Notification System
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { createContext, useContext, useState } from "react";
+
+const NotificationContext = createContext();
+
+export function NotificationProvider({ children }) {
+  const [notifications, setNotifications] = useState([]);
+
+  const addNotification = (message) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, message }]);
+    setTimeout(() => removeNotification(id), 3000);
+  };
+
+  const removeNotification = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  return (
+    <NotificationContext.Provider value={{ addNotification }}>
+      {children}
+      <Teleport to="body">
+        <div className="notification-container">
+          {notifications.map((notification) => (
+            <div key={notification.id} className="notification">
+              {notification.message}
+              <button onClick={() => removeNotification(notification.id)}>
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      </Teleport>
+    </NotificationContext.Provider>
+  );
+}
+
+export const useNotifications = () => useContext(NotificationContext);
+```
+
+### Insert Position Control
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <div>
+      <div id="container">
+        <p>Container content</p>
+      </div>
+
+      {/* Inserts before the container */}
+      <Teleport to="#container" insertPosition="beforebegin">
+        <div>Before container</div>
+      </Teleport>
+
+      {/* Inserts as first child */}
+      <Teleport to="#container" insertPosition="afterbegin">
+        <div>First child of container</div>
+      </Teleport>
+
+      {/* Inserts as last child (default) */}
+      <Teleport to="#container" insertPosition="beforeend">
+        <div>Last child of container</div>
+      </Teleport>
+
+      {/* Inserts after the container */}
+      <Teleport to="#container" insertPosition="afterend">
+        <div>After container</div>
+      </Teleport>
+    </div>
+  );
+}
+```
+
+### Using Ref Object
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useRef } from "react";
+
+function PopoverExample() {
+  const portalRef = useRef(null);
+
+  return (
+    <div>
+      <div ref={portalRef} className="portal-target" />
+
+      <Teleport to={portalRef}>
+        <div className="popover">
+          <h3>Popover Content</h3>
+          <p>This is rendered in the portal target</p>
+        </div>
+      </Teleport>
+    </div>
+  );
+}
+```
+
+### Nested Portals
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function NestedModals() {
+  const [showFirst, setShowFirst] = useState(false);
+  const [showSecond, setShowSecond] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setShowFirst(true)}>Open First Modal</button>
+
+      {showFirst && (
+        <Teleport to="body">
+          <div className="modal" style={{ zIndex: 1000 }}>
+            <h2>First Modal</h2>
+            <button onClick={() => setShowSecond(true)}>Open Second Modal</button>
+            <button onClick={() => setShowFirst(false)}>Close</button>
+          </div>
+        </Teleport>
+      )}
+
+      {showSecond && (
+        <Teleport to="body">
+          <div className="modal" style={{ zIndex: 1001 }}>
+            <h2>Second Modal</h2>
+            <button onClick={() => setShowSecond(false)}>Close</button>
+          </div>
+        </Teleport>
+      )}
+    </div>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Without Portal
+
+```tsx
+function Modal({ isOpen, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal">
+      {children}
+    </div>
+  );
+}
+
+// Issues:
+// - Rendered in parent's DOM hierarchy
+// - Subject to parent's overflow/z-index
+// - CSS isolation problems
+```
+
+### With Teleport
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+
+function Modal({ isOpen, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <Teleport to="body">
+      <div className="modal">
+        {children}
+      </div>
+    </Teleport>
+  );
+}
+
+// Benefits:
+// - Rendered at document body level
+// - Unaffected by parent overflow/z-index
+// - Proper CSS isolation
+```
+
+## Common Use Cases
+
+### Full-Screen Overlay
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+
+function FullScreenLoader({ isLoading }) {
+  if (!isLoading) return null;
+
+  return (
+    <Teleport to="body">
+      <div className="fullscreen-overlay">
+        <div className="spinner" />
+        <p>Loading...</p>
+      </div>
+    </Teleport>
+  );
+}
+```
+
+### Context Menu
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function ContextMenu({ children }) {
+  const [menu, setMenu] = useState(null);
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  return (
+    <>
+      <div onContextMenu={handleContextMenu}>
+        {children}
+      </div>
+
+      {menu && (
+        <Teleport to="body">
+          <div
+            className="context-menu"
+            style={{ left: menu.x, top: menu.y }}
+            onClick={() => setMenu(null)}
+          >
+            <button>Copy</button>
+            <button>Paste</button>
+            <button>Delete</button>
+          </div>
+        </Teleport>
+      )}
+    </>
+  );
+}
+```
+
+### Side Panel
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+
+function SidePanel({ isOpen, onClose, children }) {
+  if (!isOpen) return null;
+
+  return (
+    <Teleport to="body">
+      <div className="side-panel-overlay" onClick={onClose}>
+        <div className="side-panel" onClick={(e) => e.stopPropagation()}>
+          <button className="close-btn" onClick={onClose}>×</button>
+          {children}
+        </div>
+      </div>
+    </Teleport>
+  );
+}
+```
+
+<Note>
+Teleport uses React's `createPortal` under the hood and automatically handles client-side rendering with `ClientGate` to prevent SSR hydration issues.
+</Note>
+
+<Info>
+When using `insertPosition`, a temporary wrapper div is created and then replaced with its children after rendering, maintaining a clean DOM structure.
+</Info>
+
+<Warning>
+Make sure the target element exists in the DOM before rendering the Teleport. Use refs or ensure DOM elements are mounted first.
+</Warning>

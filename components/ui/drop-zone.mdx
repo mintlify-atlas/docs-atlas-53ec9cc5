@@ -1,0 +1,535 @@
+---
+title: DropZone
+description: A feature-rich file upload component with drag-and-drop, validation, progress tracking, and preview generation.
+---
+
+## Overview
+
+The DropZone component provides a complete file upload solution with drag-and-drop support, file validation, upload progress tracking, automatic preview generation, and extensive customization options. It's built with composition in mind and includes both headless hooks and pre-styled components.
+
+### Use Cases
+
+- Image and document uploads
+- Multi-file upload forms
+- Profile picture uploads
+- Media library management
+- File attachment systems
+- Drag-and-drop file interfaces
+
+## Installation
+
+The DropZone component is included with the UI package:
+
+```bash
+pnpm add @zayne-labs/ui-react
+```
+
+## Basic Usage
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+
+function FileUpload() {
+  return (
+    <DropZone.Root>
+      <DropZone.Area className="border-2 border-dashed p-8 text-center">
+        <p>Drag files here or click to browse</p>
+      </DropZone.Area>
+      
+      <DropZone.FileList>
+        {({ fileState }) => (
+          <DropZone.FileItem fileState={fileState} className="flex items-center gap-4 rounded border p-4">
+            <DropZone.FileItemPreview className="h-16 w-16" />
+            <DropZone.FileItemMetadata className="flex-1" />
+            <DropZone.FileItemDelete className="text-red-500">Remove</DropZone.FileItemDelete>
+          </DropZone.FileItem>
+        )}
+      </DropZone.FileList>
+    </DropZone.Root>
+  );
+}
+```
+
+## Component Parts
+
+### DropZone.Root
+
+The root provider that manages drop zone state and behavior.
+
+```tsx
+<DropZone.Root
+  multiple={true}
+  maxFiles={5}
+  maxSize={5 * 1024 * 1024} // 5MB
+  accept="image/*"
+  onFilesChange={({ fileStateArray }) => console.log(fileStateArray)}
+  onUpload={async ({ fileStateArray, onProgress, onSuccess, onError }) => {
+    // Handle upload logic
+  }}
+>
+  {children}
+</DropZone.Root>
+```
+
+**Key Props:**
+
+<AccordionGroup>
+  <Accordion title="File Validation">
+    - `accept` - Accepted file types (MIME types or extensions)
+    - `maxFiles` - Maximum number of files allowed
+    - `maxSize` - Maximum file size in bytes
+    - `minSize` - Minimum file size in bytes
+    - `validator` - Custom validation function
+  </Accordion>
+  
+  <Accordion title="Upload Behavior">
+    - `multiple` - Allow multiple file selection (default: `false`)
+    - `disabled` - Disable the drop zone
+    - `initialFiles` - Pre-populate with existing files
+    - `disablePreviewGenForNonImageFiles` - Only generate previews for images (default: `true`)
+  </Accordion>
+  
+  <Accordion title="Callbacks">
+    - `onFilesChange` - Called when files change
+    - `onUpload` - Handle file upload with progress tracking
+    - `onValidationError` - Called for each validation error
+    - `onValidationSuccess` - Called after successful validation
+  </Accordion>
+  
+  <Accordion title="Advanced">
+    - `disableInternalStateSubscription` - Disable automatic state updates
+    - `disableFilePickerOpenOnAreaClick` - Prevent area clicks from opening file picker
+    - `unstyled` - Disable default styling
+  </Accordion>
+</AccordionGroup>
+
+### DropZone.Area
+
+Combines Container and Input with Context for a complete drop area.
+
+```tsx
+<DropZone.Area 
+  className="border-2 border-dashed rounded-lg p-8"
+  classNames={{
+    container: "hover:border-blue-500",
+    input: "sr-only",
+  }}
+>
+  {({ isDraggingOver, isInvalid }) => (
+    <div>
+      <p>{isDraggingOver ? "Drop files here" : "Drag files or click"}</p>
+      {isInvalid && <p className="text-red-500">Invalid files</p>}
+    </div>
+  )}
+</DropZone.Area>
+```
+
+### DropZone.Container
+
+The drop target container.
+
+```tsx
+<DropZone.Container className="custom-container">
+  {/* content */}
+</DropZone.Container>
+```
+
+**Data Attributes:**
+- `data-drag-over` - Present when dragging over
+- `data-invalid` - Present when files are invalid
+
+### DropZone.Input
+
+The hidden file input element.
+
+```tsx
+<DropZone.Input className="sr-only" />
+```
+
+### DropZone.Trigger
+
+Button to open the file picker.
+
+```tsx
+<DropZone.Trigger className="rounded bg-blue-500 px-4 py-2 text-white">
+  Choose Files
+</DropZone.Trigger>
+```
+
+### DropZone.FileList
+
+Container for the list of selected files.
+
+```tsx
+<DropZone.FileList 
+  className="space-y-4"
+  renderMode="per-item" // or "manual-list"
+  forceMount={false}
+>
+  {({ fileState, index, actions }) => (
+    <DropZone.FileItem fileState={fileState}>
+      {/* file item content */}
+    </DropZone.FileItem>
+  )}
+</DropZone.FileList>
+```
+
+**Props:**
+- `renderMode` - `"per-item"` renders children for each file, `"manual-list"` gives full control
+- `forceMount` - Keep mounted even when empty
+- `as` - Change rendered element (default: `"ul"`)
+
+### DropZone.FileItem
+
+Wrapper for individual file items.
+
+```tsx
+<DropZone.FileItem 
+  fileState={fileState} 
+  className="flex items-center gap-4 border p-4"
+>
+  {/* file item parts */}
+</DropZone.FileItem>
+```
+
+### DropZone.FileItemPreview
+
+File preview with automatic type detection.
+
+```tsx
+<DropZone.FileItemPreview 
+  className="h-20 w-20 rounded"
+  renderPreview={true} // or custom render object
+/>
+```
+
+Automatically shows:
+- Image previews for image files
+- Appropriate icons for video, audio, code, archives, etc.
+
+**Custom Previews:**
+
+```tsx
+<DropZone.FileItemPreview
+  renderPreview={{
+    image: {
+      props: { className: "object-cover rounded-full" },
+    },
+    video: {
+      node: () => <VideoIcon className="h-full w-full" />,
+    },
+  }}
+/>
+```
+
+### DropZone.FileItemMetadata
+
+Displays file name, size, and errors.
+
+```tsx
+<DropZone.FileItemMetadata 
+  size="default" // or "sm"
+  classNames={{
+    name: "font-semibold",
+    size: "text-gray-500",
+  }}
+/>
+```
+
+Default rendering includes:
+- File name
+- File size (formatted)
+- Error message (if any)
+
+### DropZone.FileItemProgress
+
+Upload progress indicator.
+
+```tsx
+<DropZone.FileItemProgress 
+  variant="linear" // or "circular" | "fill"
+  size={40} // for circular variant
+  className="h-2 w-full rounded-full bg-gray-200"
+/>
+```
+
+### DropZone.FileItemDelete
+
+Button to remove a file.
+
+```tsx
+<DropZone.FileItemDelete className="text-red-500 hover:text-red-700">
+  Remove
+</DropZone.FileItemDelete>
+```
+
+### DropZone.FileClear
+
+Button to clear all files.
+
+```tsx
+<DropZone.FileClear className="mt-4 rounded bg-red-500 px-4 py-2 text-white">
+  Clear All Files
+</DropZone.FileClear>
+```
+
+## Examples
+
+### Image Upload with Preview
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+
+function ImageUploader() {
+  const handleUpload = async ({ fileStateArray, onProgress, onSuccess, onError }) => {
+    for (const fileState of fileStateArray) {
+      try {
+        // Simulate upload
+        for (let i = 0; i <= 100; i += 10) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          onProgress({ fileStateOrID: fileState, progress: i });
+        }
+        onSuccess({ fileStateOrID: fileState });
+      } catch (error) {
+        onError({ fileStateOrID: fileState, error });
+      }
+    }
+  };
+
+  return (
+    <DropZone.Root
+      accept="image/*"
+      multiple
+      maxFiles={5}
+      maxSize={5 * 1024 * 1024}
+      onUpload={handleUpload}
+    >
+      <DropZone.Area className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-500 transition">
+        {({ isDraggingOver }) => (
+          <div>
+            <p className="text-lg">
+              {isDraggingOver ? "Drop images here" : "Drag images here or click to browse"}
+            </p>
+            <p className="mt-2 text-sm text-gray-500">Up to 5 images, max 5MB each</p>
+          </div>
+        )}
+      </DropZone.Area>
+
+      <DropZone.FileList className="mt-6 space-y-4">
+        {({ fileState }) => (
+          <DropZone.FileItem fileState={fileState} className="flex items-center gap-4 rounded-lg border p-4">
+            <DropZone.FileItemPreview className="h-20 w-20 rounded-lg overflow-hidden" />
+            
+            <div className="flex-1">
+              <DropZone.FileItemMetadata />
+              <DropZone.FileItemProgress 
+                variant="linear" 
+                className="mt-2 h-2 w-full rounded-full bg-gray-200 overflow-hidden"
+              />
+            </div>
+            
+            <DropZone.FileItemDelete className="rounded px-3 py-1 text-red-600 hover:bg-red-50">
+              Remove
+            </DropZone.FileItemDelete>
+          </DropZone.FileItem>
+        )}
+      </DropZone.FileList>
+
+      <DropZone.FileClear className="mt-4 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600">
+        Clear All
+      </DropZone.FileClear>
+    </DropZone.Root>
+  );
+}
+```
+
+### Compact File Upload
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+
+function CompactUploader() {
+  return (
+    <DropZone.Root accept=".pdf,.doc,.docx" maxSize={10 * 1024 * 1024}>
+      <div className="flex items-center gap-4">
+        <DropZone.Trigger className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+          Choose File
+        </DropZone.Trigger>
+        
+        <DropZone.Context>
+          {({ fileStateArray }) => (
+            <span className="text-sm text-gray-600">
+              {fileStateArray.length > 0 
+                ? `${fileStateArray.length} file(s) selected` 
+                : "No file selected"}
+            </span>
+          )}
+        </DropZone.Context>
+      </div>
+
+      <DropZone.FileList className="mt-4">
+        {({ fileState }) => (
+          <DropZone.FileItem fileState={fileState} className="flex items-center gap-2 text-sm">
+            <DropZone.FileItemPreview className="h-8 w-8" />
+            <DropZone.FileItemMetadata size="sm" />
+            <DropZone.FileItemDelete className="ml-auto text-red-500">×</DropZone.FileItemDelete>
+          </DropZone.FileItem>
+        )}
+      </DropZone.FileList>
+    </DropZone.Root>
+  );
+}
+```
+
+### Custom Validation
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+
+function CustomValidationUploader() {
+  return (
+    <DropZone.Root
+      validator={async (file) => {
+        // Custom validation logic
+        if (file.name.includes("invalid")) {
+          return { isValid: false, errorMessage: "Filename cannot contain 'invalid'" };
+        }
+        return { isValid: true };
+      }}
+      onValidationError={({ errorMessage, file }) => {
+        console.error(`Validation failed for ${file.name}: ${errorMessage}`);
+      }}
+      onValidationSuccess={({ validFiles }) => {
+        console.log(`${validFiles.length} files passed validation`);
+      }}
+    >
+      <DropZone.Area className="border-2 border-dashed p-8 text-center">
+        Drop files here
+      </DropZone.Area>
+      
+      <DropZone.FileList>
+        {({ fileState }) => (
+          <DropZone.FileItem fileState={fileState}>
+            <DropZone.FileItemMetadata />
+            {fileState.error && (
+              <p className="text-sm text-red-500">{fileState.error.message}</p>
+            )}
+          </DropZone.FileItem>
+        )}
+      </DropZone.FileList>
+    </DropZone.Root>
+  );
+}
+```
+
+### Circular Progress Indicator
+
+```tsx
+import { DropZone } from "@zayne-labs/ui-react";
+
+function CircularProgressUploader() {
+  return (
+    <DropZone.Root multiple onUpload={handleUpload}>
+      <DropZone.Area className="border-2 border-dashed p-8">
+        Drop files here
+      </DropZone.Area>
+
+      <DropZone.FileList className="mt-6 grid grid-cols-3 gap-4">
+        {({ fileState }) => (
+          <DropZone.FileItem fileState={fileState} className="relative rounded-lg border p-4">
+            <div className="relative">
+              <DropZone.FileItemPreview className="h-32 w-full" />
+              
+              {fileState.progress < 100 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <DropZone.FileItemProgress 
+                    variant="circular" 
+                    size={50}
+                    className="text-white"
+                  />
+                </div>
+              )}
+            </div>
+            
+            <DropZone.FileItemMetadata size="sm" className="mt-2" />
+          </DropZone.FileItem>
+        )}
+      </DropZone.FileList>
+    </DropZone.Root>
+  );
+}
+```
+
+## File State
+
+Each file has the following state:
+
+```typescript
+interface FileState {
+  id: string;                    // Unique ID
+  file: File | FileMeta;         // File object or metadata
+  preview: string | undefined;   // Preview URL (for images)
+  progress: number;              // Upload progress (0-100)
+  status: "idle" | "uploading" | "success" | "error";
+  error?: FileErrorContext;      // Validation/upload error
+}
+```
+
+## Validation
+
+The DropZone supports comprehensive file validation:
+
+```tsx
+<DropZone.Root
+  accept="image/png,image/jpeg"  // MIME types
+  maxFiles={10}                   // Max number of files
+  maxSize={5 * 1024 * 1024}       // 5MB max per file
+  minSize={1024}                  // 1KB minimum
+  validator={async (file) => {    // Custom validation
+    if (file.name.length > 50) {
+      return { isValid: false, errorMessage: "Filename too long" };
+    }
+    return { isValid: true };
+  }}
+  onValidationError={({ file, errorMessage, code }) => {
+    // Handle individual validation errors
+  }}
+>
+```
+
+Built-in validation error codes:
+- `file-invalid-type`
+- `too-many-files`
+- `file-too-large`
+- `file-too-small`
+- `upload-error` (from onUpload)
+
+<Note>
+File previews are automatically generated for images. For other file types, appropriate icons are displayed based on the file extension and MIME type.
+</Note>
+
+<Warning>
+Don't forget to revoke object URLs when components unmount to prevent memory leaks. The DropZone handles this automatically.
+</Warning>
+
+## Styling
+
+All parts include data attributes for styling:
+
+```css
+[data-scope="drop-zone"] { }
+[data-part="container"][data-drag-over] { }
+[data-part="file-item"] { }
+```
+
+## Accessibility
+
+- File input is properly associated with the drop area
+- Keyboard navigation supported via trigger button
+- ARIA labels for delete and clear buttons
+- Error messages are announced
+- Supports paste events for file upload
+
+## API Reference
+
+For detailed prop types and advanced usage, see the [DropZone API Reference](/api/ui/drop-zone).

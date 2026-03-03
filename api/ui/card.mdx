@@ -1,0 +1,211 @@
+---
+title: Card
+description: API reference for the Card component
+---
+
+A versatile container component for grouping related content.
+
+## Import
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<ResponseField name="Card.Root" type="component">
+  The root container element for the card
+</ResponseField>
+
+<ResponseField name="Card.Header" type="component">
+  Contains the card header content
+</ResponseField>
+
+<ResponseField name="Card.Title" type="component">
+  The main heading for the card
+</ResponseField>
+
+<ResponseField name="Card.Description" type="component">
+  Descriptive text for the card
+</ResponseField>
+
+<ResponseField name="Card.Content" type="component">
+  The main content area of the card
+</ResponseField>
+
+<ResponseField name="Card.Action" type="component">
+  Interactive action element within the card
+</ResponseField>
+
+<ResponseField name="Card.Footer" type="component">
+  Contains the card footer content
+</ResponseField>
+
+## Card.Root
+
+The root container element for the card.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="article">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  When true, merges props with the immediate child element instead of rendering a wrapper element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the root element
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-root"`
+- `data-scope="card"`
+- `data-part="root"`
+
+## Card.Header
+
+Contains the card header content.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="header">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  When true, merges props with the immediate child element instead of rendering a wrapper element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the header element
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-header"`
+- `data-scope="card"`
+- `data-part="header"`
+
+## Card.Title
+
+The main heading for the card.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="h3">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the title element. Default styles include `leading-none font-semibold`
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-title"`
+- `data-scope="card"`
+- `data-part="title"`
+
+## Card.Description
+
+Descriptive text for the card.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="p">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the description element. Default styles include `text-sm text-zu-muted-foreground`
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-description"`
+- `data-scope="card"`
+- `data-part="description"`
+
+## Card.Content
+
+The main content area of the card.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="div">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the content element
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-content"`
+- `data-scope="card"`
+- `data-part="content"`
+
+## Card.Action
+
+Interactive action element within the card.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="button">
+  The element type to render as
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the action element
+</ParamField>
+
+<ParamField path="type" type="string" default="button">
+  The button type attribute
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-action"`
+- `data-scope="card"`
+- `data-part="action"`
+
+## Card.Footer
+
+Contains the card footer content.
+
+### Props
+
+<ParamField path="as" type="React.ElementType" default="footer">
+  The element type to render as
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  When true, merges props with the immediate child element instead of rendering a wrapper element
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class names to apply to the footer element
+</ParamField>
+
+### Data Attributes
+
+- `data-slot="card-footer"`
+- `data-scope="card"`
+- `data-part="footer"`
+
+## Types
+
+### PolymorphicProps
+
+All Card components support polymorphic props, allowing you to change the underlying element type while maintaining type safety.
+
+```tsx
+type PolymorphicProps<TElement extends React.ElementType, TProps> = {
+  as?: TElement;
+  // ... component-specific props
+} & Omit<React.ComponentPropsWithoutRef<TElement>, keyof TProps>;
+```

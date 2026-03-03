@@ -1,0 +1,398 @@
+---
+title: Carousel
+description: A flexible carousel component with automatic sliding, navigation controls, and customizable indicators.
+---
+
+## Overview
+
+The Carousel component provides a fully-featured image and content slider with support for automatic sliding, navigation buttons, indicators, captions, and custom rendering. It's built with composition in mind and offers fine-grained control over behavior and appearance.
+
+### Use Cases
+
+- Image galleries and slideshows
+- Product showcases and feature highlights
+- Testimonial sliders
+- Hero sections with rotating content
+- Portfolio presentations
+
+## Installation
+
+The Carousel component is included with the UI package:
+
+```bash
+pnpm add @zayne-labs/ui-react
+```
+
+## Basic Usage
+
+```tsx
+import { Carousel } from "@zayne-labs/ui-react";
+
+const images = [
+  "https://example.com/image1.jpg",
+  "https://example.com/image2.jpg",
+  "https://example.com/image3.jpg",
+];
+
+<Carousel.Root images={images}>
+  <Carousel.ItemList>
+    {({ image }) => (
+      <Carousel.Item>
+        <img src={image} alt="Slide" className="w-full" />
+      </Carousel.Item>
+    )}
+  </Carousel.ItemList>
+  <Carousel.Controls />
+  <Carousel.IndicatorList>
+    {({ index }) => <Carousel.Indicator currentIndex={index} />}
+  </Carousel.IndicatorList>
+</Carousel.Root>
+```
+
+## Component Parts
+
+### Carousel.Root
+
+The root container that manages carousel state and behavior.
+
+```tsx
+<Carousel.Root
+  images={images}
+  hasAutoSlide={true}
+  autoSlideInterval={3000}
+  shouldPauseOnHover={true}
+  onSlideBtnClick={() => console.log('Slide changed')}
+>
+  {children}
+</Carousel.Root>
+```
+
+**Props:**
+- `images` - Array of image URLs or objects with image data (required)
+- `hasAutoSlide` - Enable automatic sliding (default: `false`)
+- `autoSlideInterval` - Interval in milliseconds for auto-slide (default: `3000`)
+- `shouldPauseOnHover` - Pause auto-slide on hover (default: `false`)
+- `onSlideBtnClick` - Callback when navigation buttons are clicked
+- `classNames` - Custom classes for `base` and `scrollContainer`
+- `as` - Change rendered element (default: `"div"`)
+
+### Carousel.ItemList
+
+Container for carousel items with slide transition animations.
+
+```tsx
+<Carousel.ItemList className="custom-list">
+  {({ image, index, array }) => (
+    <Carousel.Item key={index}>
+      <img src={image} alt={`Slide ${index + 1}`} />
+    </Carousel.Item>
+  )}
+</Carousel.ItemList>
+```
+
+**Props:**
+- `children` - Render function receiving `{ image, index, array }` or static content
+- `each` - Optional array to override images from Root
+- `className` - Custom CSS classes
+
+### Carousel.Item
+
+Individual carousel item wrapper.
+
+```tsx
+<Carousel.Item className="custom-item">
+  <div className="carousel-content">
+    {/* Your content */}
+  </div>
+</Carousel.Item>
+```
+
+### Carousel.Controls
+
+Navigation controls container with previous/next buttons.
+
+```tsx
+<Carousel.Controls
+  classNames={{
+    base: "custom-controls",
+    iconContainer: "custom-icon-container",
+    defaultIcon: "custom-icon",
+  }}
+  icon={{
+    prev: <CustomPrevIcon />,
+    next: <CustomNextIcon />,
+  }}
+/>
+```
+
+**Props:**
+- `classNames` - Custom classes for controls, icon container, and default icon
+- `icon` - Custom navigation icons (see Icon Patterns below)
+
+### Carousel.Button
+
+Individual navigation button (used internally by Controls).
+
+```tsx
+<Carousel.Button
+  variant="prev"
+  icon={<CustomIcon />}
+  classNames={{
+    base: "custom-button",
+    iconContainer: "custom-icon-container",
+  }}
+/>
+```
+
+### Carousel.IndicatorList
+
+Container for slide indicators.
+
+```tsx
+<Carousel.IndicatorList className="bottom-4">
+  {({ index }) => (
+    <Carousel.Indicator
+      key={index}
+      currentIndex={index}
+      classNames={{
+        base: "bg-white/50",
+        isActive: "bg-white",
+      }}
+    />
+  )}
+</Carousel.IndicatorList>
+```
+
+### Carousel.Indicator
+
+Individual slide indicator dot/button.
+
+```tsx
+<Carousel.Indicator
+  currentIndex={0}
+  classNames={{
+    base: "bg-gray-400",
+    isActive: "bg-blue-500 w-8",
+  }}
+/>
+```
+
+### Carousel.Caption
+
+Overlay caption for carousel items.
+
+```tsx
+<Carousel.Caption className="bottom-4 left-4">
+  <h3>Slide Title</h3>
+  <p>Slide description</p>
+</Carousel.Caption>
+```
+
+## Examples
+
+### Auto-Playing Carousel
+
+```tsx
+import { Carousel } from "@zayne-labs/ui-react";
+
+const images = [
+  "https://picsum.photos/800/400?random=1",
+  "https://picsum.photos/800/400?random=2",
+  "https://picsum.photos/800/400?random=3",
+];
+
+<Carousel.Root
+  images={images}
+  hasAutoSlide={true}
+  autoSlideInterval={5000}
+  shouldPauseOnHover={true}
+  classNames={{
+    base: "relative w-full overflow-hidden rounded-lg",
+  }}
+>
+  <Carousel.ItemList>
+    {({ image, index }) => (
+      <Carousel.Item>
+        <img 
+          src={image} 
+          alt={`Slide ${index + 1}`} 
+          className="h-96 w-full object-cover"
+        />
+      </Carousel.Item>
+    )}
+  </Carousel.ItemList>
+  
+  <Carousel.Controls
+    classNames={{
+      iconContainer: "rounded-full bg-white/80 p-2 hover:bg-white",
+      defaultIcon: "h-6 w-6 text-gray-800",
+    }}
+  />
+  
+  <Carousel.IndicatorList>
+    {({ index }) => (
+      <Carousel.Indicator
+        currentIndex={index}
+        classNames={{
+          base: "bg-white/60 transition-all",
+          isActive: "bg-white w-8",
+        }}
+      />
+    )}
+  </Carousel.IndicatorList>
+</Carousel.Root>
+```
+
+### Carousel with Captions
+
+```tsx
+import { Carousel } from "@zayne-labs/ui-react";
+
+const slides = [
+  { image: "/image1.jpg", title: "First Slide", description: "Description 1" },
+  { image: "/image2.jpg", title: "Second Slide", description: "Description 2" },
+  { image: "/image3.jpg", title: "Third Slide", description: "Description 3" },
+];
+
+<Carousel.Root images={slides}>
+  <Carousel.ItemList>
+    {({ image, index }) => (
+      <Carousel.Item>
+        <img src={image.image} alt={image.title} className="h-96 w-full object-cover" />
+        <Carousel.Caption className="bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-6">
+          <h3 className="text-2xl font-bold text-white">{image.title}</h3>
+          <p className="text-gray-200">{image.description}</p>
+        </Carousel.Caption>
+      </Carousel.Item>
+    )}
+  </Carousel.ItemList>
+  <Carousel.Controls />
+</Carousel.Root>
+```
+
+### Custom Navigation Icons
+
+```tsx
+import { Carousel } from "@zayne-labs/ui-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+<Carousel.Root images={images}>
+  <Carousel.ItemList>
+    {({ image }) => (
+      <Carousel.Item>
+        <img src={image} alt="Slide" />
+      </Carousel.Item>
+    )}
+  </Carousel.ItemList>
+  
+  <Carousel.Controls
+    icon={{
+      prev: <ChevronLeft className="h-8 w-8" />,
+      next: <ChevronRight className="h-8 w-8" />,
+    }}
+    classNames={{
+      base: "px-4",
+      iconContainer: "rounded-full bg-black/50 p-3 text-white hover:bg-black/70",
+    }}
+  />
+</Carousel.Root>
+```
+
+### Single Icon Pattern
+
+You can also use a single icon that rotates for the next button:
+
+```tsx
+<Carousel.Controls
+  icon={{
+    icon: <ArrowIcon />,
+    iconType: "prevIcon", // or "nextIcon"
+  }}
+/>
+```
+
+## Navigation Patterns
+
+The carousel supports flexible icon configuration:
+
+<Tabs>
+  <Tab title="Separate Icons">
+    ```tsx
+    <Carousel.Controls
+      icon={{
+        prev: <PrevIcon />,
+        next: <NextIcon />,
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Single Icon (Prev)">
+    ```tsx
+    <Carousel.Controls
+      icon={{
+        icon: <ArrowIcon />,
+        iconType: "prevIcon", // Next button rotates 180deg
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Single Icon (Next)">
+    ```tsx
+    <Carousel.Controls
+      icon={{
+        icon: <ArrowIcon />,
+        iconType: "nextIcon", // Prev button rotates 180deg
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+## Styling
+
+All Carousel parts include data attributes for styling:
+
+```css
+/* Target carousel components */
+[data-scope="carousel"] { }
+
+/* Target specific parts */
+[data-part="controls"] { }
+[data-part="indicator"] { }
+[data-part="item"] { }
+```
+
+### Custom Styling Example
+
+```tsx
+<Carousel.Root
+  images={images}
+  classNames={{
+    base: "mx-auto max-w-4xl",
+    scrollContainer: "rounded-xl",
+  }}
+>
+  <Carousel.ItemList className="transition-transform duration-500">
+    {/* ... */}
+  </Carousel.ItemList>
+</Carousel.Root>
+```
+
+## Accessibility
+
+- Navigation buttons include `type="button"` and proper ARIA labels
+- Indicators are clickable buttons that navigate to specific slides
+- Keyboard navigation supported through button elements
+- Auto-slide pauses on hover when `shouldPauseOnHover` is enabled
+
+<Note>
+The carousel uses CSS transforms for smooth transitions between slides.
+</Note>
+
+<Tip>
+For optimal performance with many slides, consider lazy-loading images outside the current viewport.
+</Tip>
+
+## API Reference
+
+For detailed prop types and advanced usage, see the [Carousel API Reference](/api/ui/carousel).

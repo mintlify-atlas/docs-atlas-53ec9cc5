@@ -1,0 +1,388 @@
+---
+title: TypeScript
+description: Type-safe components with full TypeScript support and advanced type inference
+---
+
+Zayne Labs UI is built with TypeScript and provides **comprehensive type safety** out of the box.
+
+## Full TypeScript Support
+
+Every component is fully typed with:
+
+<Check>Generic props for flexible type inference</Check>
+<Check>Polymorphic components via the `as` prop</Check>
+<Check>Strict type checking for render props</Check>
+<Check>Exported type definitions for custom compositions</Check>
+
+## Type Inference
+
+Components automatically infer types from your data:
+
+```tsx
+const products = [
+  { id: 1, name: "Laptop", price: 999 },
+  { id: 2, name: "Mouse", price: 29 },
+];
+
+// TypeScript knows 'product' is { id: number; name: string; price: number }
+<For each={products}>
+  {(product) => (
+    <div>
+      {product.name} - ${product.price}
+      {/* TypeScript error: Property 'foo' does not exist */}
+      {/* {product.foo} */}
+    </div>
+  )}
+</For>
+```
+
+### Carousel Type Inference
+
+The Carousel component uses generics to infer image types:
+
+```tsx carousel.tsx
+export function CarouselRoot<TImages extends ImagesType, TElement extends React.ElementType = "div">(
+  props: PolymorphicPropsStrict<TElement, CarouselRootProps<TImages>>
+) {
+  // Implementation
+}
+```
+
+```tsx types.ts
+export type ImagesType = Array<Record<string, string>> | string[];
+
+export type CarouselRootProps<TImages extends ImagesType = ImagesType> = {
+  images: CarouselStore<TImages>["images"];
+  children: React.ReactNode;
+  hasAutoSlide?: boolean;
+  autoSlideInterval?: number;
+  shouldPauseOnHover?: boolean;
+  onSlideBtnClick?: () => void;
+  classNames?: {
+    base?: string;
+    scrollContainer?: string;
+  };
+};
+```
+
+Usage with type inference:
+
+```tsx
+const images = [
+  { src: "/img1.jpg", alt: "Image 1", caption: "First" },
+  { src: "/img2.jpg", alt: "Image 2", caption: "Second" },
+];
+
+<Carousel.Root images={images}>
+  <Carousel.ItemList>
+    {/* TypeScript knows image has src, alt, and caption */}
+    {({ image }) => (
+      <Carousel.Item>
+        <img src={image.src} alt={image.alt} />
+        <Carousel.Caption>{image.caption}</Carousel.Caption>
+      </Carousel.Item>
+    )}
+  </Carousel.ItemList>
+</Carousel.Root>
+```
+
+## Generic Component Props
+
+### For Component
+
+The `For` component uses generics to maintain type safety:
+
+```tsx for.tsx
+type GetArrayItemType<TArray extends ArrayOrNumber> =
+  TArray extends readonly unknown[] ? TArray[number]
+  : TArray extends number ? number
+  : unknown;
+
+type RenderPropFn<TArray extends ArrayOrNumber> = (
+  item: GetArrayItemType<TArray>,
+  index: number,
+  array: Array<GetArrayItemType<TArray>>
+) => React.ReactNode;
+
+export type ForProps<TArray extends ArrayOrNumber> = {
+  each: TArray;
+  fallback?: React.ReactNode;
+} & ForRenderProps<TArray>;
+
+export function For<const TArray extends ArrayOrNumber>(props: ForProps<TArray>) {
+  // Implementation
+}
+```
+
+This allows:
+
+```tsx
+// Array iteration
+<For each={users}>
+  {(user, index) => <div key={index}>{user.name}</div>}
+</For>
+
+// Number iteration
+<For each={5}>
+  {(num) => <div>Item {num}</div>}
+</For>
+```
+
+### Show Component
+
+The `Show` component narrows types based on the `when` condition:
+
+```tsx show.tsx
+type ShowProps<TWhen> =
+  | {
+      children: React.ReactNode;
+      control: "content";
+      fallback?: React.ReactNode;
+      when?: never;
+    }
+  | {
+      children: React.ReactNode | ((value: TWhen) => React.ReactNode);
+      control?: "root";
+      fallback?: React.ReactNode;
+      when: false | TWhen | null | undefined;
+    };
+
+export function ShowRoot<TWhen>(props: ShowProps<TWhen>) {
+  // Implementation
+}
+```
+
+Usage:
+
+```tsx
+const user = getUser(); // User | null
+
+<Show.Root when={user}>
+  {/* TypeScript knows user is not null here */}
+  {(user) => <div>Hello, {user.name}</div>}
+</Show.Root>
+```
+
+## PolymorphicProps Pattern
+
+Components use `PolymorphicProps` to support custom HTML elements via the `as` prop:
+
+```tsx card.tsx
+import type { PolymorphicProps } from "@zayne-labs/toolkit-react/utils";
+
+export function CardRoot<TElement extends React.ElementType = "article">(
+  props: PolymorphicProps<TElement, { asChild?: boolean; className?: string }>
+) {
+  const { as: Element = "article", asChild, className, ...restOfProps } = props;
+  const Component = asChild ? Slot.Root : Element;
+
+  return (
+    <Component
+      data-slot="card-root"
+      data-scope="card"
+      data-part="root"
+      className={className}
+      {...restOfProps}
+    />
+  );
+}
+```
+
+This enables:
+
+```tsx
+// Default: renders <article>
+<Card.Root>
+
+// Custom element: renders <section>
+<Card.Root as="section">
+
+// TypeScript knows valid attributes for the element
+<Card.Root as="a" href="/link"> // Valid
+<Card.Root as="button" type="submit"> // Valid
+<Card.Root as="div" href="/link"> // TypeScript error
+```
+
+### PolymorphicPropsStrict
+
+Some components use `PolymorphicPropsStrict` for stricter type checking:
+
+```tsx form.tsx
+import type { PolymorphicPropsStrict } from "@zayne-labs/toolkit-react/utils";
+
+export function CarouselCaption<TElement extends React.ElementType = "div">(
+  props: PolymorphicPropsStrict<TElement, OtherCarouselProps>
+) {
+  const { as: HtmlElement = "div", children, className } = props;
+
+  return (
+    <HtmlElement
+      data-scope="carousel"
+      data-part="caption"
+      data-slot="carousel-caption"
+      className={className}
+    >
+      {children}
+    </HtmlElement>
+  );
+}
+```
+
+## Real Type Signatures
+
+### Card Component Types
+
+```tsx
+// From card.tsx
+type CardRootProps<TElement extends React.ElementType = "article"> = 
+  PolymorphicProps<TElement, {
+    asChild?: boolean;
+    className?: string;
+  }>;
+
+type CardTitleProps<TElement extends React.ElementType = "h3"> = 
+  PolymorphicProps<TElement, {
+    className?: string;
+  }>;
+
+type CardActionProps<TElement extends React.ElementType = "button"> = 
+  PolymorphicProps<TElement, {
+    className?: string;
+  }>;
+```
+
+### Carousel Component Types
+
+```tsx
+// From carousel types.ts
+export type CarouselStore<TImages extends ImagesType> = {
+  currentSlide: number;
+  maxSlide: number;
+  images: TImages;
+  actions: {
+    goToNextSlide: () => void;
+    goToPreviousSlide: () => void;
+    goToSlide: (newValue: number) => void;
+  };
+};
+
+export type CarouselButtonsProps = {
+  variant: "next" | "prev";
+  icon?: React.ReactElement;
+  classNames?: {
+    base?: string;
+    iconContainer?: string;
+    defaultIcon?: string;
+  };
+};
+
+export type CarouselIndicatorProps = {
+  currentIndex: number;
+  classNames?: {
+    base?: string;
+    button?: string;
+    isActive?: string;
+  };
+};
+```
+
+### Form Component Types
+
+```tsx
+// From form.tsx
+export type FieldValues = Record<string, any>;
+
+type FormRootProps<TFieldValues extends FieldValues, TTransformedValues> = 
+  InferProps<"form"> & Partial<FormRootContext> & {
+    children: React.ReactNode;
+    form: UseFormReturn<TFieldValues, unknown, TTransformedValues>;
+  };
+```
+
+## Type Exports
+
+You can import and use component types for custom compositions:
+
+```tsx
+import type { CarouselRootProps, CarouselStore } from "@zayne-labs/ui-react/ui/carousel";
+import type { ForProps } from "@zayne-labs/ui-react/common/for";
+
+// Create custom wrapper with typed props
+function MyCarousel(props: CarouselRootProps<string[]>) {
+  return <Carousel.Root {...props} />;
+}
+
+// Type component state
+type MyCarouselState = CarouselStore<string[]>;
+```
+
+## Benefits
+
+<CardGroup cols={2}>
+  <Card title="Autocomplete" icon="sparkles">
+    Get intelligent autocomplete for all props, including valid HTML attributes for the rendered element.
+  </Card>
+  
+  <Card title="Type Safety" icon="shield-check">
+    Catch errors at compile time, not runtime. Invalid props are flagged immediately.
+  </Card>
+  
+  <Card title="Refactoring" icon="arrows-rotate">
+    Rename properties, change types, or restructure data - TypeScript keeps you safe.
+  </Card>
+  
+  <Card title="Documentation" icon="book">
+    Types serve as inline documentation. Hover over any prop to see its type and description.
+  </Card>
+</CardGroup>
+
+## Advanced Patterns
+
+### Discriminated Unions
+
+Some components use discriminated unions for flexible APIs:
+
+```tsx
+type CarouselControlProps = {
+  classNames?: {...};
+  icon?: 
+    | { iconType: "nextIcon" | "prevIcon"; icon?: React.ReactElement }
+    | { next?: React.ReactElement; prev?: React.ReactElement };
+};
+
+// Either provide one icon with iconType
+<Carousel.Controls icon={{ iconType: "nextIcon", icon: <CustomIcon /> }} />
+
+// Or provide separate next/prev icons
+<Carousel.Controls icon={{ next: <NextIcon />, prev: <PrevIcon /> }} />
+```
+
+### Render Prop Type Safety
+
+```tsx
+type RenderPropFn<TArrayItem> = (context: {
+  image: NoInfer<TArrayItem>;
+  index: number;
+  array: NoInfer<TArrayItem[]>;
+}) => React.ReactNode;
+
+type CarouselWrapperProps<TArrayItem> = {
+  children: React.ReactNode | RenderPropFn<TArrayItem>;
+  each?: TArrayItem[];
+  className?: string;
+};
+```
+
+This ensures render props receive correctly typed arguments.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Component Structure" icon="blocks" href="/concepts/component-structure">
+    Understand compound component patterns
+  </Card>
+  
+  <Card title="Styling" icon="palette" href="/concepts/styling">
+    Learn how to style type-safe components
+  </Card>
+</CardGroup>

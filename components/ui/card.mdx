@@ -1,0 +1,280 @@
+---
+title: Card
+description: A flexible container component for grouping related content with optional header, footer, and action sections.
+---
+
+## Overview
+
+The Card component provides a structured way to display content in a self-contained container. It's built with composition in mind, allowing you to combine different parts like headers, titles, descriptions, content areas, and footers to create rich card layouts.
+
+### Use Cases
+
+- Product listings and feature cards
+- User profile cards and dashboard widgets
+- Article previews and blog post summaries
+- Settings panels and configuration sections
+- Call-to-action containers
+
+## Installation
+
+The Card component is included with the UI package. Make sure you have `@zayne-labs/ui-react` installed:
+
+```bash
+pnpm add @zayne-labs/ui-react
+```
+
+## Basic Usage
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+
+<Card.Root>
+  <Card.Header>
+    <Card.Title>Card Title</Card.Title>
+    <Card.Description>Card description goes here</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    Your main content goes here.
+  </Card.Content>
+  <Card.Footer>
+    Footer content or actions
+  </Card.Footer>
+</Card.Root>
+```
+
+## Component Parts
+
+The Card component is composed of several parts that can be used together:
+
+### Card.Root
+
+The root container for the card. Renders as an `article` element by default.
+
+```tsx
+<Card.Root className="custom-card">
+  {/* Card content */}
+</Card.Root>
+```
+
+**Props:**
+- `as` - Change the rendered element (default: `"article"`)
+- `asChild` - Merge props with child element using Slot pattern
+- `className` - Custom CSS classes
+- All standard HTML attributes for the element type
+
+### Card.Header
+
+Container for the card's header section. Renders as a `header` element by default.
+
+```tsx
+<Card.Header className="custom-header">
+  <Card.Title>Title</Card.Title>
+  <Card.Description>Description</Card.Description>
+</Card.Header>
+```
+
+### Card.Title
+
+The main heading for the card. Renders as an `h3` element by default with semibold styling.
+
+```tsx
+<Card.Title as="h2" className="custom-title">
+  Card Title
+</Card.Title>
+```
+
+### Card.Description
+
+A muted text description. Renders as a `p` element with muted foreground color.
+
+```tsx
+<Card.Description>
+  This is a description of the card content.
+</Card.Description>
+```
+
+### Card.Content
+
+The main content area of the card. Renders as a `div` by default.
+
+```tsx
+<Card.Content>
+  <p>Main content goes here.</p>
+</Card.Content>
+```
+
+### Card.Action
+
+A button element for card actions. Renders as a `button` by default.
+
+```tsx
+<Card.Action onClick={() => console.log('clicked')}>
+  Click me
+</Card.Action>
+```
+
+### Card.Footer
+
+Container for the card's footer section. Renders as a `footer` element by default.
+
+```tsx
+<Card.Footer>
+  <button>Action</button>
+</Card.Footer>
+```
+
+## Examples
+
+### Product Card
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+
+<Card.Root className="max-w-sm rounded-lg border p-6">
+  <Card.Header>
+    <Card.Title>Premium Plan</Card.Title>
+    <Card.Description>Perfect for growing teams</Card.Description>
+  </Card.Header>
+  <Card.Content className="py-4">
+    <div className="text-3xl font-bold">$29<span className="text-sm">/month</span></div>
+    <ul className="mt-4 space-y-2">
+      <li>✓ Unlimited projects</li>
+      <li>✓ Priority support</li>
+      <li>✓ Advanced analytics</li>
+    </ul>
+  </Card.Content>
+  <Card.Footer>
+    <Card.Action className="w-full rounded bg-primary px-4 py-2 text-white">
+      Get Started
+    </Card.Action>
+  </Card.Footer>
+</Card.Root>
+```
+
+### User Profile Card
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+
+<Card.Root className="w-80 rounded-xl border shadow-sm">
+  <Card.Content className="p-6">
+    <div className="flex items-center gap-4">
+      <img 
+        src="/avatar.jpg" 
+        alt="User" 
+        className="h-16 w-16 rounded-full" 
+      />
+      <div>
+        <Card.Title className="text-lg">Jane Doe</Card.Title>
+        <Card.Description>Software Engineer</Card.Description>
+      </div>
+    </div>
+  </Card.Content>
+  <Card.Footer className="border-t p-4">
+    <div className="flex gap-2">
+      <Card.Action className="flex-1 rounded border px-3 py-2">
+        Message
+      </Card.Action>
+      <Card.Action className="flex-1 rounded bg-primary px-3 py-2 text-white">
+        Follow
+      </Card.Action>
+    </div>
+  </Card.Footer>
+</Card.Root>
+```
+
+### Minimal Card
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+
+<Card.Root className="rounded-lg border p-4">
+  <Card.Content>
+    <p className="text-sm">Simple card content without header or footer.</p>
+  </Card.Content>
+</Card.Root>
+```
+
+### Using asChild with Custom Elements
+
+```tsx
+import { Card } from "@zayne-labs/ui-react";
+import Link from "next/link";
+
+<Card.Root asChild>
+  <Link href="/products/1" className="block rounded-lg border p-6 hover:shadow-lg">
+    <Card.Header>
+      <Card.Title>Clickable Card</Card.Title>
+      <Card.Description>This entire card is a link</Card.Description>
+    </Card.Header>
+    <Card.Content>
+      Click anywhere on this card to navigate.
+    </Card.Content>
+  </Link>
+</Card.Root>
+```
+
+## Styling
+
+All Card parts accept `className` props and include data attributes for styling:
+
+```tsx
+<Card.Root 
+  className="custom-card"
+  // data-scope="card"
+  // data-part="root"
+  // data-slot="card-root"
+>
+  {/* ... */}
+</Card.Root>
+```
+
+### Data Attributes
+
+Each part includes these data attributes:
+- `data-scope="card"` - Identifies the component scope
+- `data-part` - Identifies the specific part (root, header, title, etc.)
+- `data-slot` - Identifies the slot name (card-root, card-header, etc.)
+
+### CSS Example
+
+```css
+/* Target all card components */
+[data-scope="card"] {
+  /* styles */
+}
+
+/* Target specific parts */
+[data-part="title"] {
+  /* title styles */
+}
+
+/* Target by slot */
+[data-slot="card-header"] {
+  /* header styles */
+}
+```
+
+## Polymorphic Components
+
+Most Card parts support the `as` prop to change the rendered element:
+
+```tsx
+<Card.Root as="section">
+  <Card.Header as="div">
+    <Card.Title as="h2">Title</Card.Title>
+    <Card.Description as="span">Description</Card.Description>
+  </Card.Header>
+</Card.Root>
+```
+
+## Accessibility
+
+- The Card.Root renders as a semantic `article` element by default
+- Card.Header and Card.Footer use semantic `header` and `footer` elements
+- Card.Title uses heading elements (h3 by default) for proper document outline
+- Card.Action includes `type="button"` by default
+
+## API Reference
+
+For detailed prop types and advanced usage, see the [Card API Reference](/api/ui/card).

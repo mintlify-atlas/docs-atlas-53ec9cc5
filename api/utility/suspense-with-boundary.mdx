@@ -1,0 +1,198 @@
+---
+title: SuspenseWithBoundary
+description: API reference for the SuspenseWithBoundary component - combine Suspense and ErrorBoundary.
+---
+
+## Overview
+
+The `SuspenseWithBoundary` component combines React Suspense with an ErrorBoundary, providing a convenient way to handle both loading states and errors in a single component.
+
+## Import
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+```
+
+## Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The content to render with suspense and error boundary protection.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Fallback UI to display while suspended (loading state).
+</ParamField>
+
+<ParamField path="errorFallback" type="React.ReactNode | ((props: ErrorFallbackProps) => React.ReactNode)">
+  Fallback UI to display when an error occurs. Can be a component or render function.
+</ParamField>
+
+## Type Definitions
+
+```tsx
+type SuspenseWithBoundaryProps = {
+  children: React.ReactNode;
+  errorFallback?: ErrorBoundaryProps["fallback"];
+  fallback?: React.ReactNode;
+};
+
+type ErrorFallbackProps = {
+  error: unknown;
+  resetErrorBoundary: (...args: unknown[]) => void;
+};
+```
+
+## Usage Examples
+
+### Basic Usage
+
+```tsx
+<SuspenseWithBoundary
+  fallback={<LoadingSpinner />}
+  errorFallback={<ErrorMessage />}
+>
+  <AsyncDataComponent />
+</SuspenseWithBoundary>
+```
+
+### With Error Details
+
+```tsx
+<SuspenseWithBoundary
+  fallback={<div>Loading...</div>}
+  errorFallback={({ error, resetErrorBoundary }) => (
+    <div>
+      <h2>Something went wrong</h2>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try Again</button>
+    </div>
+  )}
+>
+  <UserProfile userId={userId} />
+</SuspenseWithBoundary>
+```
+
+### Data Fetching
+
+```tsx
+function App() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<Skeleton />}
+      errorFallback={({ error }) => (
+        <Alert variant="error">{error.message}</Alert>
+      )}
+    >
+      <ProductList />
+    </SuspenseWithBoundary>
+  );
+}
+
+// ProductList uses Suspense for data fetching
+function ProductList() {
+  const products = use(fetchProducts());
+  return <div>{/* render products */}</div>;
+}
+```
+
+### Nested Loading States
+
+```tsx
+<SuspenseWithBoundary
+  fallback={<PageSkeleton />}
+  errorFallback={<PageError />}
+>
+  <Layout>
+    <SuspenseWithBoundary
+      fallback={<SidebarSkeleton />}
+      errorFallback={<SidebarError />}
+    >
+      <Sidebar />
+    </SuspenseWithBoundary>
+    
+    <SuspenseWithBoundary
+      fallback={<ContentSkeleton />}
+      errorFallback={<ContentError />}
+    >
+      <MainContent />
+    </SuspenseWithBoundary>
+  </Layout>
+</SuspenseWithBoundary>
+```
+
+### Minimal Configuration
+
+```tsx
+// Just error handling
+<SuspenseWithBoundary errorFallback={<ErrorPage />}>
+  <App />
+</SuspenseWithBoundary>
+
+// Just loading state
+<SuspenseWithBoundary fallback={<Loading />}>
+  <App />
+</SuspenseWithBoundary>
+```
+
+### Server Components
+
+```tsx
+// page.tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+export default function Page() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<ArticleSkeleton />}
+      errorFallback={({ error }) => <ErrorDisplay error={error} />}
+    >
+      <Article />
+    </SuspenseWithBoundary>
+  );
+}
+
+async function Article() {
+  const data = await fetchArticle();
+  return <ArticleContent data={data} />;
+}
+```
+
+### Multiple Async Resources
+
+```tsx
+function Dashboard() {
+  return (
+    <div className="dashboard">
+      <SuspenseWithBoundary
+        fallback={<ChartSkeleton />}
+        errorFallback={<ChartError />}
+      >
+        <Chart />
+      </SuspenseWithBoundary>
+      
+      <SuspenseWithBoundary
+        fallback={<TableSkeleton />}
+        errorFallback={<TableError />}
+      >
+        <DataTable />
+      </SuspenseWithBoundary>
+      
+      <SuspenseWithBoundary
+        fallback={<CardSkeleton />}
+        errorFallback={<CardError />}
+      >
+        <StatsCards />
+      </SuspenseWithBoundary>
+    </div>
+  );
+}
+```
+
+## Notes
+
+- This component is a convenience wrapper around `ErrorBoundary` and `Suspense`
+- The ErrorBoundary wraps the Suspense component
+- If `errorFallback` is not provided, the ErrorBoundary still catches errors but won't display a fallback
+- If `fallback` is not provided, Suspense will use React's default behavior
+- Works with React Server Components and client components
+- Useful for data fetching with libraries that support Suspense (React Query, SWR, etc.)

@@ -1,0 +1,359 @@
+---
+title: For
+description: Declarative list rendering with built-in empty state handling
+---
+
+The For component provides a declarative way to render lists and arrays in React, with automatic empty state handling and support for numeric ranges.
+
+## When to Use
+
+- Render lists of items from arrays
+- Generate repeated elements from a count
+- Display fallback UI when lists are empty
+- Avoid manual `.map()` calls with cleaner syntax
+- Render list containers with semantic HTML
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Array Rendering
+import { For } from "@zayne-labs/ui-react";
+
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 3, name: "Charlie" },
+];
+
+function UserList() {
+  return (
+    <For each={users}>
+      {(user) => (
+        <div key={user.id}>
+          <h3>{user.name}</h3>
+        </div>
+      )}
+    </For>
+  );
+}
+```
+
+```tsx Numeric Range
+import { For } from "@zayne-labs/ui-react";
+
+function SkeletonLoader() {
+  return (
+    <For each={5}>
+      {(index) => (
+        <div key={index} className="skeleton-item" />
+      )}
+    </For>
+  );
+}
+```
+
+```tsx renderItem Prop
+import { For } from "@zayne-labs/ui-react";
+
+function ProductGrid({ products }) {
+  return (
+    <For
+      each={products}
+      renderItem={(product, index) => (
+        <ProductCard key={product.id} product={product} index={index} />
+      )}
+    />
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+### For
+
+Renders items without a wrapper element.
+
+<ParamField path="each" type="TArray | number" required>
+  Array to iterate over, or a number to generate a range [0...n-1]
+</ParamField>
+
+<ParamField path="children" type="(item: T, index: number, array: T[]) => React.ReactNode">
+  Render function called for each item. Receives item, index, and full array
+</ParamField>
+
+<ParamField path="renderItem" type="(item: T, index: number, array: T[]) => React.ReactNode">
+  Alternative to children prop for rendering items
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to display when the array is empty or count is 0
+</ParamField>
+
+### ForWithWrapper
+
+Renders items inside a container element.
+
+<ParamField path="as" type="React.ElementType" default="ul">
+  Container element type
+</ParamField>
+
+<ParamField path="displayFallBackWhenEmpty" type="boolean" default="false">
+  Whether to show fallback instead of empty container when list is empty
+</ParamField>
+
+<ParamField path="...props" type="HTMLAttributes">
+  All other props for the container element (className, style, etc.)
+</ParamField>
+
+## Examples
+
+### List with Fallback
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function TodoList({ todos }) {
+  return (
+    <For
+      each={todos}
+      fallback={
+        <div className="empty-state">
+          <p>No todos yet!</p>
+          <button>Add your first todo</button>
+        </div>
+      }
+    >
+      {(todo) => (
+        <div key={todo.id} className="todo-item">
+          <input type="checkbox" checked={todo.completed} />
+          <span>{todo.text}</span>
+        </div>
+      )}
+    </For>
+  );
+}
+```
+
+### Numeric Range for Skeletons
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function ProductListSkeleton() {
+  return (
+    <div className="product-grid">
+      <For each={8}>
+        {(index) => (
+          <div key={index} className="skeleton-card">
+            <div className="skeleton-image" />
+            <div className="skeleton-title" />
+            <div className="skeleton-price" />
+          </div>
+        )}
+      </For>
+    </div>
+  );
+}
+```
+
+### With Container Element
+
+```tsx
+import { ForWithWrapper } from "@zayne-labs/ui-react";
+
+function NavigationMenu({ items }) {
+  return (
+    <ForWithWrapper
+      as="nav"
+      each={items}
+      className="nav-menu"
+      role="navigation"
+      displayFallBackWhenEmpty={true}
+      fallback={<div>No menu items</div>}
+    >
+      {(item) => (
+        <a key={item.id} href={item.url} className="nav-link">
+          {item.label}
+        </a>
+      )}
+    </ForWithWrapper>
+  );
+}
+```
+
+### Accessing Index and Array
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function RankedList({ items }) {
+  return (
+    <For each={items}>
+      {(item, index, array) => (
+        <div key={item.id}>
+          <span className="rank">#{index + 1}</span>
+          <span className="name">{item.name}</span>
+          <span className="score">{item.score}</span>
+          {index === array.length - 1 && (
+            <span className="badge">Last</span>
+          )}
+        </div>
+      )}
+    </For>
+  );
+}
+```
+
+### Semantic List Wrapper
+
+```tsx
+import { ForWithWrapper } from "@zayne-labs/ui-react";
+
+function FeatureList({ features }) {
+  return (
+    <ForWithWrapper
+      as="ul"
+      each={features}
+      className="feature-list"
+    >
+      {(feature) => (
+        <li key={feature.id}>
+          <strong>{feature.title}</strong>
+          <p>{feature.description}</p>
+        </li>
+      )}
+    </ForWithWrapper>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Traditional Map
+
+```tsx
+function UserList({ users }) {
+  if (users.length === 0) {
+    return <div>No users found</div>;
+  }
+
+  return (
+    <div>
+      {users.map((user, index) => (
+        <div key={user.id}>
+          <h3>{user.name}</h3>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### With For Component
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function UserList({ users }) {
+  return (
+    <For each={users} fallback={<div>No users found</div>}>
+      {(user, index) => (
+        <div key={user.id}>
+          <h3>{user.name}</h3>
+        </div>
+      )}
+    </For>
+  );
+}
+```
+
+## Common Use Cases
+
+### Dynamic Grid Layout
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function ImageGallery({ images }) {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <For
+        each={images}
+        fallback={
+          <div className="col-span-3 text-center">
+            <p>No images to display</p>
+          </div>
+        }
+      >
+        {(image) => (
+          <img
+            key={image.id}
+            src={image.url}
+            alt={image.alt}
+            className="rounded-lg"
+          />
+        )}
+      </For>
+    </div>
+  );
+}
+```
+
+### Breadcrumb Navigation
+
+```tsx
+import { For } from "@zayne-labs/ui-react";
+
+function Breadcrumbs({ paths }) {
+  return (
+    <nav className="breadcrumb">
+      <For each={paths}>
+        {(path, index, array) => (
+          <span key={path.id}>
+            <a href={path.url}>{path.label}</a>
+            {index < array.length - 1 && <span className="separator">/</span>}
+          </span>
+        )}
+      </For>
+    </nav>
+  );
+}
+```
+
+### Table Rows
+
+```tsx
+import { ForWithWrapper } from "@zayne-labs/ui-react";
+
+function DataTable({ rows }) {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <ForWithWrapper as="tbody" each={rows}>
+        {(row) => (
+          <tr key={row.id}>
+            <td>{row.id}</td>
+            <td>{row.name}</td>
+            <td>{row.status}</td>
+          </tr>
+        )}
+      </ForWithWrapper>
+    </table>
+  );
+}
+```
+
+<Info>
+When using numeric ranges with `each={n}`, the component generates an array `[0, 1, 2, ..., n-1]` and passes each number as the item.
+</Info>
+
+<Note>
+The For component automatically checks for empty arrays, null/undefined values, and zero counts before rendering the fallback.
+</Note>

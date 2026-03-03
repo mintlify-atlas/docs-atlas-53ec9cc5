@@ -1,0 +1,411 @@
+---
+title: Show
+description: Declarative conditional rendering with fallback support
+---
+
+The Show component provides a clean, declarative way to conditionally render content in React, with built-in support for fallback UI and multiple rendering patterns.
+
+## When to Use
+
+- Conditionally render components based on a value
+- Display different UI for truthy vs falsy states
+- Show loading or empty states elegantly
+- Avoid ternary operator chains in JSX
+- Pass resolved values to child render functions
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Root Control (Default)
+import { Show } from "@zayne-labs/ui-react";
+
+function UserGreeting({ user }) {
+  return (
+    <Show when={user} fallback={<div>Please log in</div>}>
+      {(user) => <div>Welcome, {user.name}!</div>}
+    </Show>
+  );
+}
+```
+
+```tsx Content Control
+import { Show } from "@zayne-labs/ui-react";
+
+function Dashboard({ isLoading, error, data }) {
+  return (
+    <Show.Root control="content">
+      <Show.Content when={isLoading}>
+        <Spinner />
+      </Show.Content>
+
+      <Show.Content when={error}>
+        {(error) => <ErrorMessage error={error} />}
+      </Show.Content>
+
+      <Show.Content when={data}>
+        {(data) => <DataDisplay data={data} />}
+      </Show.Content>
+
+      <Show.Fallback>
+        <div>No data available</div>
+      </Show.Fallback>
+    </Show.Root>
+  );
+}
+```
+
+```tsx Static Children
+import { Show } from "@zayne-labs/ui-react";
+
+function FeatureFlag({ enabled }) {
+  return (
+    <Show when={enabled} fallback={<div>Feature disabled</div>}>
+      <div>Feature is enabled!</div>
+    </Show>
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+### Show.Root
+
+The root component that manages conditional rendering.
+
+<ParamField path="when" type="TWhen | false | null | undefined">
+  Condition to evaluate. If truthy, renders children; if falsy, renders fallback. Not used with `control="content"`
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render when condition is true. Can be a render function receiving the resolved value
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to render when condition is false
+</ParamField>
+
+<ParamField path="control" type="'root' | 'content'" default="root">
+  - `'root'`: Use `when` prop to control rendering
+  - `'content'`: Use `Show.Content` children with individual `when` props
+</ParamField>
+
+### Show.Content
+
+Defines conditional content within a content-controlled Show.
+
+<ParamField path="when" type="TWhen | false | null | undefined" required>
+  Condition for this content block
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render. Can be a render function receiving the resolved value
+</ParamField>
+
+### Show.Fallback / Show.Otherwise
+
+Defines fallback content when no conditions match.
+
+<ParamField path="children" type="React.ReactNode" required>
+  Fallback content to display
+</ParamField>
+
+<Info>`Show.Otherwise` is an alias for `Show.Fallback`.</Info>
+
+## Examples
+
+### Authentication State
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function Header({ user }) {
+  return (
+    <header>
+      <Show when={user} fallback={<LoginButton />}>
+        {(user) => (
+          <div className="user-menu">
+            <img src={user.avatar} alt={user.name} />
+            <span>{user.name}</span>
+            <LogoutButton />
+          </div>
+        )}
+      </Show>
+    </header>
+  );
+}
+```
+
+### Loading States
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function DataFetcher({ data, isLoading, error }) {
+  return (
+    <Show.Root control="content">
+      <Show.Content when={isLoading}>
+        <div className="spinner">Loading...</div>
+      </Show.Content>
+
+      <Show.Content when={error}>
+        {(error) => (
+          <div className="error">
+            <h3>Error occurred</h3>
+            <p>{error.message}</p>
+          </div>
+        )}
+      </Show.Content>
+
+      <Show.Content when={data}>
+        {(data) => (
+          <div className="data">
+            <pre>{JSON.stringify(data, null, 2)}</pre>
+          </div>
+        )}
+      </Show.Content>
+
+      <Show.Fallback>
+        <div className="empty">No data to display</div>
+      </Show.Fallback>
+    </Show.Root>
+  );
+}
+```
+
+### Permission-Based Rendering
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function AdminPanel({ user }) {
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <Show
+      when={isAdmin}
+      fallback={
+        <div className="access-denied">
+          <h2>Access Denied</h2>
+          <p>You need administrator privileges</p>
+        </div>
+      }
+    >
+      <div className="admin-panel">
+        <h1>Admin Dashboard</h1>
+        <AdminControls />
+      </div>
+    </Show>
+  );
+}
+```
+
+### Nested Conditions
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function Profile({ user }) {
+  return (
+    <Show when={user}>
+      {(user) => (
+        <div>
+          <h1>{user.name}</h1>
+          <Show when={user.isPremium} fallback={<UpgradeButton />}>
+            <PremiumBadge />
+            <PremiumFeatures />
+          </Show>
+        </div>
+      )}
+    </Show>
+  );
+}
+```
+
+### Form Validation Messages
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function FormField({ error, value }) {
+  return (
+    <div className="form-field">
+      <input type="text" value={value} />
+      <Show when={error}>
+        {(error) => (
+          <span className="error-message">{error.message}</span>
+        )}
+      </Show>
+    </div>
+  );
+}
+```
+
+### Multiple Fallback Options
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function SearchResults({ query, results, isSearching }) {
+  return (
+    <Show.Root control="content">
+      <Show.Content when={isSearching}>
+        <SearchingIndicator />
+      </Show.Content>
+
+      <Show.Content when={results && results.length > 0}>
+        {(results) => (
+          <div>
+            {results.map((result) => (
+              <ResultCard key={result.id} result={result} />
+            ))}
+          </div>
+        )}
+      </Show.Content>
+
+      <Show.Otherwise>
+        <div className="no-results">
+          {query ? (
+            <p>No results found for "{query}"</p>
+          ) : (
+            <p>Start typing to search</p>
+          )}
+        </div>
+      </Show.Otherwise>
+    </Show.Root>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Ternary Operator
+
+```tsx
+function UserGreeting({ user }) {
+  return (
+    <div>
+      {user ? (
+        <div>Welcome, {user.name}!</div>
+      ) : (
+        <div>Please log in</div>
+      )}
+    </div>
+  );
+}
+```
+
+### && Operator
+
+```tsx
+function Notification({ message }) {
+  return (
+    <div>
+      {message && <div className="notification">{message}</div>}
+    </div>
+  );
+}
+```
+
+### With Show Component
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function UserGreeting({ user }) {
+  return (
+    <Show when={user} fallback={<div>Please log in</div>}>
+      {(user) => <div>Welcome, {user.name}!</div>}
+    </Show>
+  );
+}
+
+function Notification({ message }) {
+  return (
+    <Show when={message}>
+      {(message) => <div className="notification">{message}</div>}
+    </Show>
+  );
+}
+```
+
+## Common Use Cases
+
+### API Response Handling
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function UserProfile({ userId }) {
+  const { data, error, isLoading } = useQuery(`/api/users/${userId}`);
+
+  return (
+    <Show.Root control="content">
+      <Show.Content when={isLoading}>
+        <ProfileSkeleton />
+      </Show.Content>
+
+      <Show.Content when={error}>
+        {(error) => <ErrorDisplay error={error} />}
+      </Show.Content>
+
+      <Show.Content when={data}>
+        {(data) => <ProfileDisplay user={data} />}
+      </Show.Content>
+    </Show.Root>
+  );
+}
+```
+
+### Feature Toggles
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function HomePage({ features }) {
+  return (
+    <div>
+      <HeroSection />
+
+      <Show when={features.newDashboard}>
+        <NewDashboard />
+      </Show>
+
+      <Show when={features.chatSupport}>
+        <ChatWidget />
+      </Show>
+    </div>
+  );
+}
+```
+
+### Empty States
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+
+function ItemList({ items }) {
+  return (
+    <Show
+      when={items.length > 0}
+      fallback={
+        <div className="empty-state">
+          <img src="/empty.svg" alt="No items" />
+          <h3>No items yet</h3>
+          <button>Add your first item</button>
+        </div>
+      }
+    >
+      <div className="item-grid">
+        {items.map((item) => (
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </div>
+    </Show>
+  );
+}
+```
+
+<Note>
+When using render functions with `when`, the resolved truthy value is automatically passed to the function, providing type-safe access without null checks.
+</Note>

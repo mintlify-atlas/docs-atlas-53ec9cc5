@@ -1,0 +1,267 @@
+---
+title: Teleport
+description: API reference for the Teleport component - render content in a different part of the DOM.
+---
+
+## Overview
+
+The `Teleport` component (also known as Portal) renders its children into a different part of the DOM tree while maintaining the React component hierarchy. This is useful for modals, tooltips, dropdowns, and other overlay components.
+
+## Import
+
+```tsx
+import { Teleport } from "@zayne-labs/ui-react";
+```
+
+## Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The content to render in the portal.
+</ParamField>
+
+<ParamField path="to" type="string | HTMLElement | React.RefObject<HTMLElement> | ValidHtmlTags | null" required>
+  The destination for the portal. Can be:
+  - A CSS selector string (e.g., "#modal-root")
+  - An HTML element
+  - A React ref object
+  - An HTML tag name (e.g., "body")
+  - `null` to disable the portal
+</ParamField>
+
+<ParamField path="insertPosition" type="InsertPosition">
+  Where to insert the content relative to the destination element. Options:
+  - `"beforebegin"` - Before the element
+  - `"afterbegin"` - Inside, before first child
+  - `"beforeend"` - Inside, after last child
+  - `"afterend"` - After the element
+</ParamField>
+
+## Type Definitions
+
+```tsx
+type ValidHtmlTags = keyof HTMLElementTagNameMap;
+
+type InsertPosition = "beforebegin" | "afterbegin" | "beforeend" | "afterend";
+
+type PortalProps = {
+  children: React.ReactNode;
+  insertPosition?: InsertPosition;
+  to: AnyString | HTMLElement | React.RefObject<HTMLElement> | ValidHtmlTags | null;
+};
+```
+
+## Usage Examples
+
+### Basic Portal to Body
+
+```tsx
+function Modal({ isOpen, children }) {
+  if (!isOpen) return null;
+  
+  return (
+    <Teleport to="body">
+      <div className="modal-overlay">
+        <div className="modal-content">
+          {children}
+        </div>
+      </div>
+    </Teleport>
+  );
+}
+```
+
+### Portal to Specific Element
+
+```tsx
+// HTML: <div id="modal-root"></div>
+
+function Notification({ message }) {
+  return (
+    <Teleport to="#modal-root">
+      <div className="notification">
+        {message}
+      </div>
+    </Teleport>
+  );
+}
+```
+
+### Using a Ref
+
+```tsx
+function App() {
+  const portalRef = useRef(null);
+  
+  return (
+    <>
+      <div ref={portalRef} className="portal-container" />
+      
+      <Teleport to={portalRef}>
+        <Tooltip>Portaled content</Tooltip>
+      </Teleport>
+    </>
+  );
+}
+```
+
+### With Insert Position
+
+```tsx
+function Header() {
+  return (
+    <header id="main-header">
+      <h1>My App</h1>
+    </header>
+  );
+}
+
+function Breadcrumbs() {
+  return (
+    <Teleport to="#main-header" insertPosition="beforeend">
+      <nav className="breadcrumbs">
+        <a href="/">Home</a> / <span>Current Page</span>
+      </nav>
+    </Teleport>
+  );
+}
+```
+
+### Conditional Portal
+
+```tsx
+function Popover({ isOpen, target }) {
+  return (
+    <Teleport to={isOpen ? document.body : null}>
+      <div className="popover">
+        Popover content
+      </div>
+    </Teleport>
+  );
+}
+```
+
+### Multiple Portals
+
+```tsx
+function App() {
+  return (
+    <>
+      <Teleport to="body">
+        <GlobalNotifications />
+      </Teleport>
+      
+      <Teleport to="#sidebar-root">
+        <SidePanel />
+      </Teleport>
+      
+      <Teleport to="#footer-root">
+        <ChatWidget />
+      </Teleport>
+      
+      <MainContent />
+    </>
+  );
+}
+```
+
+### Tooltip with Portal
+
+```tsx
+function Tooltip({ children, content, isVisible }) {
+  const triggerRef = useRef(null);
+  
+  return (
+    <>
+      <span ref={triggerRef}>{children}</span>
+      
+      {isVisible && (
+        <Teleport to="body">
+          <div className="tooltip">
+            {content}
+          </div>
+        </Teleport>
+      )}
+    </>
+  );
+}
+```
+
+### Modal Stack
+
+```tsx
+function ModalProvider({ children }) {
+  return (
+    <>
+      {children}
+      <div id="modal-root" />
+    </>
+  );
+}
+
+function ConfirmDialog({ isOpen, onConfirm, onCancel }) {
+  if (!isOpen) return null;
+  
+  return (
+    <Teleport to="#modal-root">
+      <div className="modal-backdrop">
+        <div className="dialog">
+          <p>Are you sure?</p>
+          <button onClick={onConfirm}>Yes</button>
+          <button onClick={onCancel}>No</button>
+        </div>
+      </div>
+    </Teleport>
+  );
+}
+```
+
+### Insert at Specific Position
+
+```tsx
+// Insert before the main content
+<Teleport to="#main-content" insertPosition="beforebegin">
+  <Announcement>Important message!</Announcement>
+</Teleport>
+
+// Insert as first child
+<Teleport to="#container" insertPosition="afterbegin">
+  <Header />
+</Teleport>
+
+// Insert as last child
+<Teleport to="#container" insertPosition="beforeend">
+  <Footer />
+</Teleport>
+
+// Insert after the element
+<Teleport to="#main-content" insertPosition="afterend">
+  <RelatedContent />
+</Teleport>
+```
+
+### Client-Side Only
+
+```tsx
+// The component automatically uses ClientGate internally
+// This ensures it only renders on the client
+
+function ServerSafeModal({ children }) {
+  return (
+    <Teleport to="body">
+      {children}
+    </Teleport>
+  );
+}
+// Works safely with SSR - won't cause hydration errors
+```
+
+## Notes
+
+- The component uses `ClientGate` internally, making it safe for server-side rendering
+- When `insertPosition` is used, a temporary wrapper div is created and then unwrapped
+- The wrapper div has `display: contents` to avoid affecting layout
+- Content is portaled using React's `createPortal` API
+- The portal maintains React context and event bubbling through the component tree
+- When `to` is `null`, the portal is disabled and nothing is rendered
+- CSS selector strings are resolved using `document.querySelector`
+- The component cleans up the temporary wrapper on unmount

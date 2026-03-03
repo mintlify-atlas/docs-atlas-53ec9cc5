@@ -1,0 +1,204 @@
+---
+title: ErrorBoundary
+description: API reference for the ErrorBoundary component - catch and handle React errors gracefully.
+---
+
+## Overview
+
+The `ErrorBoundary` component catches JavaScript errors anywhere in the child component tree, logs those errors, and displays a fallback UI. It's based on the react-error-boundary package.
+
+## Import
+
+```tsx
+import { ErrorBoundary, useErrorBoundary, useErrorBoundaryContext } from "@zayne-labs/ui-react";
+```
+
+## Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The component tree to wrap with error boundary protection.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode | ((props: ErrorFallbackProps) => React.ReactNode)">
+  The fallback UI to display when an error occurs. Can be a component or a render function that receives error details.
+</ParamField>
+
+<ParamField path="onError" type="(context: { error: Error; info: React.ErrorInfo }) => void">
+  Callback invoked when an error is caught. Useful for error logging.
+</ParamField>
+
+<ParamField path="onReset" type="(context: ResetContext) => void">
+  Callback invoked when the error boundary is reset, either imperatively or via resetKeys.
+</ParamField>
+
+<ParamField path="resetKeys" type="unknown[]">
+  Array of values that, when changed, will automatically reset the error boundary.
+</ParamField>
+
+## Type Definitions
+
+```tsx
+type ErrorFallbackProps = {
+  error: unknown;
+  resetErrorBoundary: (...args: unknown[]) => void;
+};
+
+type ErrorBoundaryContextType = {
+  error: unknown;
+  hasError: boolean;
+  resetErrorBoundary: (...args: unknown[]) => void;
+};
+
+type ResetContext =
+  | {
+      args: unknown[];
+      reason: "imperative-api";
+    }
+  | {
+      next: unknown[] | undefined;
+      prev: unknown[] | undefined;
+      reason: "keys";
+    };
+```
+
+## Hooks
+
+### useErrorBoundary
+
+```tsx
+function useErrorBoundary<TError extends Error>(): {
+  resetBoundary: () => void;
+  showBoundary: (error: TError) => void;
+}
+```
+
+Manually trigger or reset the error boundary from within child components.
+
+**Returns:**
+
+<ResponseField name="resetBoundary" type="() => void">
+  Function to reset the error boundary state.
+</ResponseField>
+
+<ResponseField name="showBoundary" type="(error: TError) => void">
+  Function to manually trigger the error boundary with a specific error.
+</ResponseField>
+
+### useErrorBoundaryContext
+
+```tsx
+function useErrorBoundaryContext(): ErrorBoundaryContextType
+```
+
+Access the error boundary context from within child components.
+
+**Returns:**
+
+<ResponseField name="error" type="unknown">
+  The current error, if any.
+</ResponseField>
+
+<ResponseField name="hasError" type="boolean">
+  Whether an error has occurred.
+</ResponseField>
+
+<ResponseField name="resetErrorBoundary" type="(...args: unknown[]) => void">
+  Function to reset the error boundary.
+</ResponseField>
+
+## Usage Examples
+
+### Basic Usage
+
+```tsx
+<ErrorBoundary fallback={<div>Something went wrong</div>}>
+  <MyComponent />
+</ErrorBoundary>
+```
+
+### With Error Details
+
+```tsx
+<ErrorBoundary
+  fallback={({ error, resetErrorBoundary }) => (
+    <div>
+      <h1>Oops! Something went wrong</h1>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  )}
+>
+  <App />
+</ErrorBoundary>
+```
+
+### With Error Logging
+
+```tsx
+<ErrorBoundary
+  fallback={<ErrorFallback />}
+  onError={({ error, info }) => {
+    console.error('Error caught:', error);
+    console.error('Component stack:', info.componentStack);
+    logErrorToService(error, info);
+  }}
+>
+  <Dashboard />
+</ErrorBoundary>
+```
+
+### Auto-Reset with Dependencies
+
+```tsx
+function UserProfile({ userId }) {
+  return (
+    <ErrorBoundary
+      fallback={<div>Failed to load profile</div>}
+      resetKeys={[userId]}
+    >
+      <Profile userId={userId} />
+    </ErrorBoundary>
+  );
+}
+```
+
+### Manual Error Triggering
+
+```tsx
+function DataForm() {
+  const { showBoundary } = useErrorBoundary();
+  
+  const handleSubmit = async (data) => {
+    try {
+      await submitData(data);
+    } catch (error) {
+      showBoundary(error);
+    }
+  };
+  
+  return <form onSubmit={handleSubmit}>...</form>;
+}
+```
+
+### Nested Error Boundaries
+
+```tsx
+<ErrorBoundary fallback={<AppError />}>
+  <Layout>
+    <ErrorBoundary fallback={<SidebarError />}>
+      <Sidebar />
+    </ErrorBoundary>
+    
+    <ErrorBoundary fallback={<ContentError />}>
+      <MainContent />
+    </ErrorBoundary>
+  </Layout>
+</ErrorBoundary>
+```
+
+## Notes
+
+- Error boundaries only catch errors during rendering, in lifecycle methods, and in constructors
+- They do NOT catch errors in event handlers, async code, server-side rendering, or errors thrown in the error boundary itself
+- For event handler errors, use try-catch or the `useErrorBoundary` hook
+- The component will warn if no fallback is provided when an error occurs

@@ -1,0 +1,432 @@
+---
+title: DragScroll
+description: A headless hook for adding mouse drag-to-scroll functionality to containers with optional navigation buttons.
+---
+
+## Overview
+
+The `useDragScroll` hook provides mouse drag-to-scroll behavior for horizontal or vertical scrollable containers. It's completely headless and unstyled, giving you full control over the UI while handling all the complex drag, scroll, and navigation logic.
+
+### Use Cases
+
+- Horizontal scrolling galleries and carousels
+- Product listing rows
+- Tab navigation with many items
+- Timeline components
+- Mobile-style swipeable lists on desktop
+- Image galleries and media browsers
+
+## Installation
+
+The DragScroll hook is included with the UI package:
+
+```bash
+pnpm add @zayne-labs/ui-react
+```
+
+## Basic Usage
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+
+function HorizontalScroller() {
+  const { propGetters } = useDragScroll();
+
+  return (
+    <div className="relative">
+      <button {...propGetters.getBackButtonProps()}>←</button>
+      
+      <div {...propGetters.getRootProps()}>
+        <div {...propGetters.getItemProps()}>Item 1</div>
+        <div {...propGetters.getItemProps()}>Item 2</div>
+        <div {...propGetters.getItemProps()}>Item 3</div>
+      </div>
+      
+      <button {...propGetters.getNextButtonProps()}>→</button>
+    </div>
+  );
+}
+```
+
+## API
+
+### useDragScroll Options
+
+```tsx
+const result = useDragScroll({
+  orientation: "horizontal", // or "vertical" | "both"
+  scrollAmount: "item", // or number (pixels)
+  usage: "allScreens", // or "desktopOnly" | "mobileAndTabletOnly"
+  classNames: {
+    base: "custom-container",
+    item: "custom-item",
+  },
+  disableInternalStateSubscription: false,
+});
+```
+
+**Options:**
+
+<AccordionGroup>
+  <Accordion title="orientation">
+    The scroll direction.
+    - `"horizontal"` (default) - Scroll left/right
+    - `"vertical"` - Scroll up/down
+    - `"both"` - Scroll in both directions
+  </Accordion>
+  
+  <Accordion title="scrollAmount">
+    Distance to scroll when using navigation buttons.
+    - `"item"` (default) - Scroll by first child's width/height
+    - `number` - Scroll by fixed pixel amount
+  </Accordion>
+  
+  <Accordion title="usage">
+    Device constraints for drag behavior.
+    - `"allScreens"` (default) - Works on all devices
+    - `"desktopOnly"` - Drag only on desktop (768px and above)
+    - `"mobileAndTabletOnly"` - Drag only on mobile/tablet (below 768px)
+  </Accordion>
+  
+  <Accordion title="classNames">
+    Custom CSS classes.
+    - `base` - Applied to root container
+    - `item` - Applied to each item
+  </Accordion>
+  
+  <Accordion title="disableInternalStateSubscription">
+    Disable automatic data-attribute updates (default: `false`).
+    Set to `true` if you want to subscribe to state manually.
+  </Accordion>
+</AccordionGroup>
+
+### Return Value
+
+```tsx
+interface UseDragScrollResult<TElement extends HTMLElement> {
+  // Ref to the container element
+  containerRef: React.RefObject<TElement>;
+  
+  // Prop getters for different parts
+  propGetters: {
+    getRootProps: (props?) => RootProps;
+    getItemProps: (props?) => ItemProps;
+    getBackButtonProps: (props?) => ButtonProps;
+    getNextButtonProps: (props?) => ButtonProps;
+  };
+  
+  // Store API for advanced usage
+  storeApi: StoreApi<DragScrollStore>;
+  
+  // Hook for subscribing to state
+  useDragScrollStore: (selector?) => State;
+  
+  disableInternalStateSubscription: boolean;
+}
+```
+
+## Prop Getters
+
+### getRootProps
+
+Props for the scrollable container.
+
+```tsx
+<div {...propGetters.getRootProps({ className: "custom-class" })}>
+  {/* items */}
+</div>
+```
+
+**Returned Props:**
+- `ref` - Container ref callback
+- `className` - Merged classes including drag cursor styles
+- `data-scope="drag-scroll"`
+- `data-part="root"`
+- `data-dragging` - Present when actively dragging (if state subscription enabled)
+
+### getItemProps
+
+Props for each scrollable item.
+
+```tsx
+<div {...propGetters.getItemProps({ className: "item-class" })}>
+  Item content
+</div>
+```
+
+**Returned Props:**
+- `className` - Includes snap-center styles
+- `data-scope="drag-scroll"`
+- `data-part="item"`
+
+### getBackButtonProps
+
+Props for the previous/back navigation button.
+
+```tsx
+<button {...propGetters.getBackButtonProps()}>
+  ← Previous
+</button>
+```
+
+**Returned Props:**
+- `type="button"`
+- `onClick` - Scrolls to previous item/section
+- `disabled` - Auto-disabled when can't scroll back
+- `aria-label="Scroll back"`
+- `data-disabled` - Reflects disabled state
+- `data-scope="drag-scroll"`
+- `data-part="back-button"`
+
+### getNextButtonProps
+
+Props for the next/forward navigation button.
+
+```tsx
+<button {...propGetters.getNextButtonProps()}>
+  Next →
+</button>
+```
+
+**Returned Props:**
+- `type="button"`
+- `onClick` - Scrolls to next item/section
+- `disabled` - Auto-disabled when can't scroll forward
+- `aria-label="Scroll forward"`
+- `data-disabled` - Reflects disabled state
+- `data-scope="drag-scroll"`
+- `data-part="next-button"`
+
+## Examples
+
+### Image Gallery
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+
+function ImageGallery({ images }) {
+  const { propGetters } = useDragScroll({
+    orientation: "horizontal",
+    scrollAmount: "item",
+  });
+
+  return (
+    <div className="relative">
+      <button 
+        {...propGetters.getBackButtonProps()}
+        className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 disabled:opacity-50"
+      >
+        ←
+      </button>
+      
+      <div 
+        {...propGetters.getRootProps()}
+        className="gap-4 overflow-x-auto"
+      >
+        {images.map((image, i) => (
+          <img
+            key={i}
+            {...propGetters.getItemProps()}
+            src={image.url}
+            alt={image.alt}
+            className="h-64 w-80 rounded-lg object-cover"
+          />
+        ))}
+      </div>
+      
+      <button 
+        {...propGetters.getNextButtonProps()}
+        className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 disabled:opacity-50"
+      >
+        →
+      </button>
+    </div>
+  );
+}
+```
+
+### Product Carousel
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+
+function ProductCarousel({ products }) {
+  const { propGetters, useDragScrollStore } = useDragScroll({
+    scrollAmount: 300, // Scroll 300px at a time
+  });
+
+  const { canGoToPrev, canGoToNext } = useDragScrollStore((state) => ({
+    canGoToPrev: state.canGoToPrev,
+    canGoToNext: state.canGoToNext,
+  }));
+
+  return (
+    <div>
+      <div className="mb-4 flex gap-2">
+        <button 
+          {...propGetters.getBackButtonProps()}
+          className="rounded bg-gray-200 px-4 py-2 disabled:opacity-30"
+        >
+          ← Back
+        </button>
+        <button 
+          {...propGetters.getNextButtonProps()}
+          className="rounded bg-gray-200 px-4 py-2 disabled:opacity-30"
+        >
+          Next →
+        </button>
+      </div>
+      
+      <div {...propGetters.getRootProps()} className="gap-6">
+        {products.map((product) => (
+          <div 
+            key={product.id} 
+            {...propGetters.getItemProps()}
+            className="w-64 shrink-0 rounded-lg border p-4"
+          >
+            <img src={product.image} alt={product.name} className="mb-2 h-48 w-full object-cover" />
+            <h3 className="font-semibold">{product.name}</h3>
+            <p className="text-gray-600">${product.price}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### Vertical Timeline
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+
+function VerticalTimeline({ events }) {
+  const { propGetters } = useDragScroll({
+    orientation: "vertical",
+    scrollAmount: "item",
+  });
+
+  return (
+    <div className="relative h-96">
+      <button 
+        {...propGetters.getBackButtonProps()}
+        className="absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded-full bg-white p-2 shadow disabled:opacity-50"
+      >
+        ↑
+      </button>
+      
+      <div 
+        {...propGetters.getRootProps()}
+        className="h-full gap-4 overflow-y-auto px-4 py-12"
+      >
+        {events.map((event, i) => (
+          <div 
+            key={i} 
+            {...propGetters.getItemProps()}
+            className="rounded-lg border-l-4 border-blue-500 bg-white p-4 shadow"
+          >
+            <time className="text-sm text-gray-500">{event.date}</time>
+            <h3 className="font-semibold">{event.title}</h3>
+            <p className="text-gray-600">{event.description}</p>
+          </div>
+        ))}
+      </div>
+      
+      <button 
+        {...propGetters.getNextButtonProps()}
+        className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white p-2 shadow disabled:opacity-50"
+      >
+        ↓
+      </button>
+    </div>
+  );
+}
+```
+
+### Desktop-Only Drag
+
+```tsx
+import { useDragScroll } from "@zayne-labs/ui-react";
+
+function DesktopDragScroll({ items }) {
+  const { propGetters } = useDragScroll({
+    usage: "desktopOnly", // Drag only works on screens 768px and above
+  });
+
+  return (
+    <div {...propGetters.getRootProps()}>
+      {items.map((item, i) => (
+        <div key={i} {...propGetters.getItemProps()}>
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Accessing State
+
+Subscribe to internal state using the returned hook:
+
+```tsx
+function MyComponent() {
+  const { propGetters, useDragScrollStore } = useDragScroll();
+
+  const isDragging = useDragScrollStore((state) => state.isDragging);
+  const canGoToPrev = useDragScrollStore((state) => state.canGoToPrev);
+  const canGoToNext = useDragScrollStore((state) => state.canGoToNext);
+
+  return (
+    <div>
+      <p>Dragging: {isDragging ? "Yes" : "No"}</p>
+      <p>Can go back: {canGoToPrev ? "Yes" : "No"}</p>
+      <p>Can go forward: {canGoToNext ? "Yes" : "No"}</p>
+      
+      <div {...propGetters.getRootProps()}>
+        {/* items */}
+      </div>
+    </div>
+  );
+}
+```
+
+## Styling with Data Attributes
+
+When `disableInternalStateSubscription` is `false` (default), the root element receives a `data-dragging` attribute:
+
+```tsx
+<div 
+  {...propGetters.getRootProps()}
+  className="drag-scroll-container"
+  // data-dragging="true" when actively dragging
+>
+```
+
+Style based on dragging state:
+
+```css
+[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+```
+
+<Note>
+The hook automatically manages scroll position tracking and updates button disabled states based on scroll position.
+</Note>
+
+<Warning>
+The `scrollAmount: "item"` option uses the first child's dimensions. Ensure all items have consistent sizing for predictable scrolling.
+</Warning>
+
+## Accessibility
+
+- Navigation buttons include proper `aria-label` attributes
+- Buttons are automatically disabled when scrolling is not possible in that direction
+- The hook maintains focus management during interactions
+- Keyboard users can still use native scroll with arrow keys and tab navigation
+
+## API Reference
+
+For detailed type definitions, see the [DragScroll API Reference](/api/ui/drag-scroll).

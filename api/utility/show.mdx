@@ -1,0 +1,238 @@
+---
+title: Show
+description: API reference for the Show component - conditionally render content with fallbacks.
+---
+
+## Overview
+
+The `Show` component provides a declarative way to conditionally render content with support for fallbacks. It offers two control modes: root-controlled and content-controlled rendering.
+
+## Import
+
+```tsx
+import { Show } from "@zayne-labs/ui-react";
+// or
+import { ShowRoot, ShowContent, ShowFallback } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<CardGroup cols={2}>
+  <Card title="Show.Root" icon="box">
+    The root component that controls conditional rendering
+  </Card>
+  <Card title="Show.Content" icon="eye">
+    Defines content to show when a condition is met
+  </Card>
+  <Card title="Show.Fallback" icon="eye-slash">
+    Defines fallback content when no condition is met
+  </Card>
+  <Card title="Show.Otherwise" icon="arrows-split-up-and-left">
+    Alias for Show.Fallback
+  </Card>
+</CardGroup>
+
+## Show.Root
+
+### Root-Controlled Mode
+
+<ParamField path="when" type="false | TWhen | null | undefined" required>
+  The condition to evaluate. When truthy, renders children. When falsy, renders fallback.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render when the condition is truthy. Can be a render function that receives the truthy value.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to render when the condition is falsy.
+</ParamField>
+
+<ParamField path="control" type="'root'" default="'root'">
+  Specifies root-controlled mode.
+</ParamField>
+
+### Content-Controlled Mode
+
+<ParamField path="control" type="'content'" required>
+  Specifies content-controlled mode where children determine what renders.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode" required>
+  Must contain `Show.Content` components with `when` props.
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Content to render when no content condition is met.
+</ParamField>
+
+## Show.Content
+
+<ParamField path="when" type="false | TWhen | null | undefined" required>
+  The condition for this content block.
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render when this condition is truthy.
+</ParamField>
+
+## Show.Fallback / Show.Otherwise
+
+<ParamField path="children" type="React.ReactNode" required>
+  Fallback content to display.
+</ParamField>
+
+## Usage Examples
+
+### Basic Conditional Rendering
+
+```tsx
+function UserGreeting({ user }) {
+  return (
+    <Show.Root when={user}>
+      {(user) => <div>Welcome, {user.name}!</div>}
+    </Show.Root>
+  );
+}
+```
+
+### With Fallback
+
+```tsx
+<Show.Root when={data} fallback={<p>No data available</p>}>
+  {(data) => <DataDisplay data={data} />}
+</Show.Root>
+```
+
+### Using Show.Fallback Component
+
+```tsx
+<Show.Root when={user}>
+  {(user) => (
+    <div>
+      <h1>Welcome back!</h1>
+      <p>Email: {user.email}</p>
+    </div>
+  )}
+  <Show.Fallback>
+    <p>Please log in to continue</p>
+  </Show.Fallback>
+</Show.Root>
+```
+
+### Content-Controlled Mode
+
+```tsx
+<Show.Root control="content">
+  <Show.Content when={user?.role === 'admin'}>
+    {(user) => <AdminPanel user={user} />}
+  </Show.Content>
+  
+  <Show.Content when={user?.role === 'user'}>
+    {(user) => <UserDashboard user={user} />}
+  </Show.Content>
+  
+  <Show.Fallback>
+    <LoginPrompt />
+  </Show.Fallback>
+</Show.Root>
+```
+
+### Multiple Conditions
+
+```tsx
+<Show.Root control="content">
+  <Show.Content when={isLoading}>
+    <Spinner />
+  </Show.Content>
+  
+  <Show.Content when={error}>
+    {(error) => <ErrorMessage error={error} />}
+  </Show.Content>
+  
+  <Show.Content when={data}>
+    {(data) => <DataTable data={data} />}
+  </Show.Content>
+  
+  <Show.Otherwise>
+    <EmptyState />
+  </Show.Otherwise>
+</Show.Root>
+```
+
+### Static Children
+
+```tsx
+<Show.Root when={isAuthenticated}>
+  <Dashboard />
+</Show.Root>
+```
+
+### Nested Conditions
+
+```tsx
+<Show.Root when={user}>
+  {(user) => (
+    <div>
+      <h1>Profile</h1>
+      <Show.Root when={user.avatar} fallback={<DefaultAvatar />}>
+        {(avatar) => <img src={avatar} alt="Avatar" />}
+      </Show.Root>
+    </div>
+  )}
+</Show.Root>
+```
+
+### Boolean Conditions
+
+```tsx
+<Show.Root when={isOnline} fallback={<OfflineBanner />}>
+  <OnlineFeatures />
+</Show.Root>
+```
+
+### Array or Object Checks
+
+```tsx
+<Show.Root
+  when={items.length > 0 && items}
+  fallback={<EmptyList />}
+>
+  {(items) => (
+    <ul>
+      {items.map(item => <li key={item.id}>{item.name}</li>)}
+    </ul>
+  )}
+</Show.Root>
+```
+
+### First Match Wins
+
+```tsx
+<Show.Root control="content">
+  <Show.Content when={status === 'success'}>
+    <SuccessMessage />
+  </Show.Content>
+  
+  <Show.Content when={status === 'error'}>
+    <ErrorMessage />
+  </Show.Content>
+  
+  <Show.Content when={status === 'pending'}>
+    <PendingMessage />
+  </Show.Content>
+  
+  <Show.Fallback>
+    <IdleState />
+  </Show.Fallback>
+</Show.Root>
+```
+
+## Notes
+
+- In root-controlled mode with a render function, the function receives the truthy value of `when`
+- In content-controlled mode, the first `Show.Content` with a truthy `when` prop is rendered
+- You cannot use both the `fallback` prop and `Show.Fallback` component simultaneously
+- `Show.Otherwise` is an alias for `Show.Fallback` for semantic clarity
+- The component narrows types when using render functions with TypeScript
+- Content-controlled mode requires at least one `Show.Content` child

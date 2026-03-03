@@ -1,0 +1,484 @@
+---
+title: Switch
+description: Pattern matching and multi-way conditional rendering
+---
+
+The Switch component provides a declarative pattern-matching approach for rendering content based on multiple conditions, similar to switch statements in JavaScript.
+
+## When to Use
+
+- Render different content based on multiple mutually exclusive conditions
+- Implement pattern matching in React components
+- Replace long chains of if-else or ternary operators
+- Handle state machines with different states
+- Provide default fallback for unmatched cases
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Value-Based Matching
+import { Switch } from "@zayne-labs/ui-react";
+
+function StatusIndicator({ status }) {
+  return (
+    <Switch.Root value={status}>
+      <Switch.Match when="loading">Loading...</Switch.Match>
+      <Switch.Match when="success">Success!</Switch.Match>
+      <Switch.Match when="error">Error occurred</Switch.Match>
+      <Switch.Default>Unknown status</Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+```tsx Boolean Matching (switch(true))
+import { Switch } from "@zayne-labs/ui-react";
+
+function UserGreeting({ user, isLoading, error }) {
+  return (
+    <Switch.Root>
+      <Switch.Match when={isLoading}>Loading user...</Switch.Match>
+      <Switch.Match when={error}>Error: {error.message}</Switch.Match>
+      <Switch.Match when={user?.isPremium}>
+        Welcome Premium User, {user.name}!
+      </Switch.Match>
+      <Switch.Match when={user}>
+        Welcome, {user.name}!
+      </Switch.Match>
+      <Switch.Default>Please log in</Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+```tsx Render Functions
+import { Switch } from "@zayne-labs/ui-react";
+
+function DataDisplay({ data }) {
+  return (
+    <Switch.Root value={data.type}>
+      <Switch.Match when="user">
+        {(type) => <UserCard data={data} type={type} />}
+      </Switch.Match>
+      <Switch.Match when="product">
+        {(type) => <ProductCard data={data} type={type} />}
+      </Switch.Match>
+      <Switch.Default>Unknown type</Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+### Switch.Root
+
+Container that evaluates and renders the first matching case.
+
+<ParamField path="value" type="TValue">
+  Value to match against. If omitted, switches to boolean matching mode (like `switch(true)`)
+</ParamField>
+
+<ParamField path="children" type="SwitchMatchElement | SwitchMatchElement[]" required>
+  Switch.Match and Switch.Default components to evaluate
+</ParamField>
+
+### Switch.Match
+
+Defines a case to match against.
+
+<ParamField path="when" type="TWhen | false | null | undefined" required>
+  Value to match (in value mode) or condition to evaluate (in boolean mode)
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((value: TWhen) => React.ReactNode)" required>
+  Content to render when matched. Can be a render function receiving the matched value
+</ParamField>
+
+### Switch.Default
+
+Defines fallback content when no cases match.
+
+<ParamField path="children" type="React.ReactNode" required>
+  Fallback content to display
+</ParamField>
+
+## Examples
+
+### API Response States
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function ApiResponse({ status, data, error }) {
+  return (
+    <Switch.Root value={status}>
+      <Switch.Match when="idle">
+        <div>Ready to fetch data</div>
+      </Switch.Match>
+
+      <Switch.Match when="loading">
+        <div className="spinner">Loading...</div>
+      </Switch.Match>
+
+      <Switch.Match when="success">
+        <div className="data">
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </div>
+      </Switch.Match>
+
+      <Switch.Match when="error">
+        <div className="error">
+          <h3>Error occurred</h3>
+          <p>{error?.message}</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Default>
+        <div>Unknown state</div>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### User Role Rendering
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function Dashboard({ user }) {
+  return (
+    <Switch.Root value={user.role}>
+      <Switch.Match when="admin">
+        <AdminDashboard user={user} />
+      </Switch.Match>
+
+      <Switch.Match when="moderator">
+        <ModeratorDashboard user={user} />
+      </Switch.Match>
+
+      <Switch.Match when="user">
+        <UserDashboard user={user} />
+      </Switch.Match>
+
+      <Switch.Default>
+        <GuestDashboard />
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Complex Condition Matching
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function PricingCard({ user, plan }) {
+  const isPremium = plan === 'premium';
+  const isExpired = new Date(user.expiresAt) < new Date();
+  const isFreeTrial = user.isTrial;
+
+  return (
+    <Switch.Root>
+      <Switch.Match when={isExpired}>
+        <div className="expired">
+          <h3>Subscription Expired</h3>
+          <button>Renew Now</button>
+        </div>
+      </Switch.Match>
+
+      <Switch.Match when={isFreeTrial}>
+        <div className="trial">
+          <h3>Free Trial Active</h3>
+          <p>Upgrade to unlock all features</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Match when={isPremium}>
+        <div className="premium">
+          <h3>Premium Member</h3>
+          <p>Thank you for your support!</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Default>
+        <div className="free">
+          <h3>Free Plan</h3>
+          <button>Upgrade to Premium</button>
+        </div>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Theme Selector
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function ThemePreview({ theme }) {
+  return (
+    <Switch.Root value={theme}>
+      <Switch.Match when="light">
+        <div className="preview-light">
+          <h3>Light Theme</h3>
+          <p>Clean and bright interface</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Match when="dark">
+        <div className="preview-dark">
+          <h3>Dark Theme</h3>
+          <p>Easy on the eyes</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Match when="auto">
+        <div className="preview-auto">
+          <h3>Auto Theme</h3>
+          <p>Matches system preference</p>
+        </div>
+      </Switch.Match>
+
+      <Switch.Default>
+        <div>Custom theme</div>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### With Render Functions
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function NotificationBadge({ type, count }) {
+  return (
+    <Switch.Root value={type}>
+      <Switch.Match when="message">
+        {(matchedType) => (
+          <div className="badge badge-blue">
+            <MessageIcon />
+            {count > 0 && <span>{count}</span>}
+          </div>
+        )}
+      </Switch.Match>
+
+      <Switch.Match when="alert">
+        {(matchedType) => (
+          <div className="badge badge-red">
+            <AlertIcon />
+            {count > 0 && <span>{count}</span>}
+          </div>
+        )}
+      </Switch.Match>
+
+      <Switch.Match when="info">
+        {(matchedType) => (
+          <div className="badge badge-gray">
+            <InfoIcon />
+            {count > 0 && <span>{count}</span>}
+          </div>
+        )}
+      </Switch.Match>
+
+      <Switch.Default>
+        <div className="badge">Unknown</div>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### Order Status Flow
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function OrderStatus({ order }) {
+  return (
+    <div className="order-status">
+      <Switch.Root value={order.status}>
+        <Switch.Match when="pending">
+          <div className="status-pending">
+            <ClockIcon />
+            <span>Order Pending</span>
+            <p>Waiting for confirmation</p>
+          </div>
+        </Switch.Match>
+
+        <Switch.Match when="processing">
+          <div className="status-processing">
+            <SpinnerIcon />
+            <span>Processing</span>
+            <p>Preparing your order</p>
+          </div>
+        </Switch.Match>
+
+        <Switch.Match when="shipped">
+          <div className="status-shipped">
+            <TruckIcon />
+            <span>Shipped</span>
+            <p>Tracking: {order.trackingNumber}</p>
+          </div>
+        </Switch.Match>
+
+        <Switch.Match when="delivered">
+          <div className="status-delivered">
+            <CheckIcon />
+            <span>Delivered</span>
+            <p>Delivered on {order.deliveredAt}</p>
+          </div>
+        </Switch.Match>
+
+        <Switch.Match when="cancelled">
+          <div className="status-cancelled">
+            <XIcon />
+            <span>Cancelled</span>
+            <p>Order was cancelled</p>
+          </div>
+        </Switch.Match>
+
+        <Switch.Default>
+          <div className="status-unknown">
+            Unknown status
+          </div>
+        </Switch.Default>
+      </Switch.Root>
+    </div>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Multiple Ternaries
+
+```tsx
+function StatusIndicator({ status }) {
+  return (
+    <div>
+      {status === "loading" ? (
+        <div>Loading...</div>
+      ) : status === "success" ? (
+        <div>Success!</div>
+      ) : status === "error" ? (
+        <div>Error occurred</div>
+      ) : (
+        <div>Unknown status</div>
+      )}
+    </div>
+  );
+}
+```
+
+### If-Else Chain
+
+```tsx
+function StatusIndicator({ status }) {
+  let content;
+
+  if (status === "loading") {
+    content = <div>Loading...</div>;
+  } else if (status === "success") {
+    content = <div>Success!</div>;
+  } else if (status === "error") {
+    content = <div>Error occurred</div>;
+  } else {
+    content = <div>Unknown status</div>;
+  }
+
+  return <div>{content}</div>;
+}
+```
+
+### With Switch Component
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function StatusIndicator({ status }) {
+  return (
+    <Switch.Root value={status}>
+      <Switch.Match when="loading">Loading...</Switch.Match>
+      <Switch.Match when="success">Success!</Switch.Match>
+      <Switch.Match when="error">Error occurred</Switch.Match>
+      <Switch.Default>Unknown status</Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+## Common Use Cases
+
+### Form Step Navigation
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function MultiStepForm({ currentStep }) {
+  return (
+    <Switch.Root value={currentStep}>
+      <Switch.Match when={1}>
+        <PersonalInfoStep />
+      </Switch.Match>
+      <Switch.Match when={2}>
+        <AddressStep />
+      </Switch.Match>
+      <Switch.Match when={3}>
+        <PaymentStep />
+      </Switch.Match>
+      <Switch.Match when={4}>
+        <ReviewStep />
+      </Switch.Match>
+      <Switch.Default>
+        <CompletionStep />
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+### File Type Preview
+
+```tsx
+import { Switch } from "@zayne-labs/ui-react";
+
+function FilePreview({ file }) {
+  const extension = file.name.split('.').pop();
+
+  return (
+    <Switch.Root value={extension}>
+      <Switch.Match when="jpg">
+        <ImagePreview src={file.url} />
+      </Switch.Match>
+      <Switch.Match when="png">
+        <ImagePreview src={file.url} />
+      </Switch.Match>
+      <Switch.Match when="pdf">
+        <PDFViewer src={file.url} />
+      </Switch.Match>
+      <Switch.Match when="mp4">
+        <VideoPlayer src={file.url} />
+      </Switch.Match>
+      <Switch.Default>
+        <GenericFileIcon />
+        <p>Preview not available</p>
+      </Switch.Default>
+    </Switch.Root>
+  );
+}
+```
+
+<Info>
+When no `value` prop is provided, Switch works like `switch(true)` in JavaScript, evaluating each `when` condition until it finds a truthy one.
+</Info>
+
+<Note>
+Only the first matching `Switch.Match` is rendered. Once a match is found, remaining cases are skipped.
+</Note>

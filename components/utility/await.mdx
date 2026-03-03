@@ -1,0 +1,336 @@
+---
+title: Await
+description: Handle async operations with declarative loading, error, and success states
+---
+
+The Await component provides a declarative way to handle asynchronous operations in React, managing loading states, errors, and successful data resolution with a clean, composable API.
+
+## When to Use
+
+- Display loading states while data is being fetched
+- Handle errors from async operations gracefully
+- Show different UI based on promise resolution state
+- Avoid manual promise handling with useState and useEffect
+- Integrate with React Suspense and Error Boundaries automatically
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Render Prop Pattern
+import { Await } from "@zayne-labs/ui-react";
+
+const fetchUser = async (id: string) => {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+};
+
+function UserProfile({ userId }: { userId: string }) {
+  const userPromise = fetchUser(userId);
+
+  return (
+    <Await.Root promise={userPromise}>
+      {(user) => (
+        <div>
+          <h1>{user.name}</h1>
+          <p>{user.email}</p>
+        </div>
+      )}
+    </Await.Root>
+  );
+}
+```
+
+```tsx Slot-based Pattern
+import { Await } from "@zayne-labs/ui-react";
+
+function UserProfile({ userId }: { userId: string }) {
+  const userPromise = fetchUser(userId);
+
+  return (
+    <Await.Root promise={userPromise}>
+      <Await.Pending>
+        <div>Loading user...</div>
+      </Await.Pending>
+
+      <Await.Error>
+        {({ error, resetErrorBoundary }) => (
+          <div>
+            <p>Error: {error.message}</p>
+            <button onClick={resetErrorBoundary}>Try Again</button>
+          </div>
+        )}
+      </Await.Error>
+
+      <Await.Success>
+        {(user) => (
+          <div>
+            <h1>{user.name}</h1>
+            <p>{user.email}</p>
+          </div>
+        )}
+      </Await.Success>
+    </Await.Root>
+  );
+}
+```
+</CodeGroup>
+
+## Component API
+
+### Await.Root
+
+The root component that manages the promise lifecycle.
+
+<ParamField path="promise" type="Promise<TValue>" required>
+  The promise to await and resolve
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode | ((result: TValue) => React.ReactNode)" required>
+  Content to render on success. Can be a render function receiving the resolved value
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Fallback UI to show while the promise is pending (passed to Suspense)
+</ParamField>
+
+<ParamField path="errorFallback" type="React.ReactNode | ((props: ErrorFallbackProps) => React.ReactNode)">
+  Fallback UI to show when the promise rejects (passed to ErrorBoundary)
+</ParamField>
+
+<ParamField path="withSuspense" type="boolean" default="true">
+  Whether to wrap children with React Suspense
+</ParamField>
+
+<ParamField path="withErrorBoundary" type="boolean" default="true">
+  Whether to wrap children with ErrorBoundary
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props into the child element instead of rendering a wrapper
+</ParamField>
+
+### Await.Success
+
+Renders content when the promise resolves successfully.
+
+<ParamField path="children" type="React.ReactNode | ((result: TValue) => React.ReactNode)" required>
+  Content to render. Can be a render function receiving the resolved value
+</ParamField>
+
+### Await.Error
+
+Renders content when the promise rejects.
+
+<ParamField path="children" type="React.ReactNode | ((context: ErrorBoundaryContext) => React.ReactNode)" required>
+  Content to render on error. Render function receives error and resetErrorBoundary
+</ParamField>
+
+<ParamField path="asChild" type="boolean">
+  Merge props into the child element
+</ParamField>
+
+### Await.Pending
+
+Renders content while the promise is pending.
+
+<ParamField path="children" type="React.ReactNode" required>
+  Loading UI to display
+</ParamField>
+
+## Advanced Examples
+
+### Using Inline Props
+
+```tsx
+import { Await } from "@zayne-labs/ui-react";
+
+function DataDisplay() {
+  const dataPromise = fetchData();
+
+  return (
+    <Await.Root
+      promise={dataPromise}
+      fallback={<Spinner />}
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <div>
+          <p>Failed to load: {error.message}</p>
+          <button onClick={resetErrorBoundary}>Retry</button>
+        </div>
+      )}
+    >
+      {(data) => <pre>{JSON.stringify(data, null, 2)}</pre>}
+    </Await.Root>
+  );
+}
+```
+
+### Disabling Suspense/ErrorBoundary
+
+```tsx
+import { Await } from "@zayne-labs/ui-react";
+import { Suspense } from "react";
+import { ErrorBoundary } from "@zayne-labs/ui-react";
+
+function CustomBoundaries() {
+  const promise = fetchData();
+
+  return (
+    <ErrorBoundary fallback={(props) => <CustomError {...props} />}>
+      <Suspense fallback={<CustomLoader />}>
+        <Await.Root
+          promise={promise}
+          withSuspense={false}
+          withErrorBoundary={false}
+        >
+          {(data) => <div>{data.content}</div>}
+        </Await.Root>
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+### Using asChild for Prop Merging
+
+```tsx
+import { Await } from "@zayne-labs/ui-react";
+
+function StyledError() {
+  const promise = fetchData();
+
+  return (
+    <Await.Root promise={promise}>
+      <Await.Error asChild>
+        {({ error, resetErrorBoundary }) => (
+          <div className="error-container" role="alert">
+            <h2>Something went wrong</h2>
+            <p>{error.message}</p>
+            <button onClick={resetErrorBoundary}>Try Again</button>
+          </div>
+        )}
+      </Await.Error>
+
+      <Await.Success>
+        {(data) => <div>{data.content}</div>}
+      </Await.Success>
+    </Await.Root>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Traditional Approach
+
+```tsx
+function UserProfile({ userId }: { userId: string }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchUser(userId)
+      .then(setUser)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!user) return null;
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+```
+
+### With Await Component
+
+```tsx
+function UserProfile({ userId }: { userId: string }) {
+  const userPromise = fetchUser(userId);
+
+  return (
+    <Await.Root promise={userPromise} fallback={<div>Loading...</div>}>
+      {(user) => (
+        <div>
+          <h1>{user.name}</h1>
+          <p>{user.email}</p>
+        </div>
+      )}
+    </Await.Root>
+  );
+}
+```
+
+<Note>
+The Await component uses React's `use` hook internally to unwrap promises, automatically integrating with Suspense boundaries for optimal loading states.
+</Note>
+
+## Common Use Cases
+
+### Data Fetching with Loading States
+
+```tsx
+function ProductList() {
+  const productsPromise = fetch("/api/products").then((r) => r.json());
+
+  return (
+    <Await.Root promise={productsPromise}>
+      <Await.Pending>
+        <div className="grid gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
+        </div>
+      </Await.Pending>
+
+      <Await.Success>
+        {(products) => (
+          <div className="grid gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </Await.Success>
+    </Await.Root>
+  );
+}
+```
+
+### Graceful Error Handling
+
+```tsx
+function UserSettings() {
+  const settingsPromise = fetchSettings();
+
+  return (
+    <Await.Root promise={settingsPromise}>
+      <Await.Error>
+        {({ error, resetErrorBoundary }) => (
+          <div className="error-state">
+            <h2>Failed to load settings</h2>
+            <p>{error.message}</p>
+            <div className="actions">
+              <button onClick={resetErrorBoundary}>Retry</button>
+              <button onClick={() => window.location.reload()}>
+                Reload Page
+              </button>
+            </div>
+          </div>
+        )}
+      </Await.Error>
+
+      <Await.Success>
+        {(settings) => <SettingsForm settings={settings} />}
+      </Await.Success>
+    </Await.Root>
+  );
+}
+```

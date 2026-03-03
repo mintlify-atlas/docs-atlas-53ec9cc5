@@ -1,0 +1,248 @@
+---
+title: Slot
+description: API reference for the Slot component - merge props with child elements.
+---
+
+## Overview
+
+The `Slot` component merges its props with its child element, enabling prop forwarding and composition patterns. It's useful for creating flexible, composable components that don't add extra DOM nodes.
+
+## Import
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+// or
+import { SlotRoot, SlotSlottable } from "@zayne-labs/ui-react";
+```
+
+## Component Parts
+
+<CardGroup cols={2}>
+  <Card title="Slot.Root" icon="box">
+    Merges props into the child element
+  </Card>
+  <Card title="Slot.Slottable" icon="puzzle-piece">
+    Marks content as the target for slotting
+  </Card>
+</CardGroup>
+
+## Slot.Root
+
+### Props
+
+<ParamField path="children" type="React.ReactElement" required>
+  A single React element to merge props into. Must be a valid React element.
+</ParamField>
+
+<ParamField path="ref" type="React.Ref<HTMLElement>">
+  Ref to be composed with the child's ref.
+</ParamField>
+
+All other props are merged with the child element's props.
+
+## Slot.Slottable
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The content to be slotted. Must be a single React element.
+</ParamField>
+
+## Usage Examples
+
+### Basic Prop Merging
+
+```tsx
+function Button({ asChild, ...props }) {
+  const Component = asChild ? Slot.Root : 'button';
+  
+  return (
+    <Component className="btn" {...props}>
+      {props.children}
+    </Component>
+  );
+}
+
+// Usage - renders an <a> with merged classes and onClick
+<Button asChild onClick={handleClick}>
+  <a href="/home" className="link">Go Home</a>
+</Button>
+// Result: <a href="/home" className="btn link" onClick={handleClick}>Go Home</a>
+```
+
+### Ref Composition
+
+```tsx
+function Input({ asChild, ...props }) {
+  const internalRef = useRef();
+  const Component = asChild ? Slot.Root : 'input';
+  
+  return <Component ref={internalRef} {...props} />;
+}
+
+function Form() {
+  const externalRef = useRef();
+  
+  // Both refs will be set
+  return (
+    <Input asChild ref={externalRef}>
+      <input type="text" />
+    </Input>
+  );
+}
+```
+
+### Event Handler Merging
+
+```tsx
+function Clickable({ asChild, onClick, ...props }) {
+  const handleInternalClick = (e) => {
+    console.log('Internal click');
+    onClick?.(e);
+  };
+  
+  const Component = asChild ? Slot.Root : 'div';
+  
+  return <Component onClick={handleInternalClick} {...props} />;
+}
+
+// Both click handlers will fire
+<Clickable asChild onClick={() => console.log('External click')}>
+  <button>Click me</button>
+</Clickable>
+```
+
+### Using Slottable
+
+```tsx
+function Card({ asChild, children }) {
+  const Component = asChild ? Slot.Root : 'div';
+  
+  return (
+    <Component className="card">
+      <div className="card-header">Header</div>
+      <Slot.Slottable>{children}</Slot.Slottable>
+      <div className="card-footer">Footer</div>
+    </Component>
+  );
+}
+
+// The article element receives the card class
+<Card asChild>
+  <article>
+    <h2>Title</h2>
+    <p>Content</p>
+  </article>
+</Card>
+
+// Result:
+// <article className="card">
+//   <div className="card-header">Header</div>
+//   <h2>Title</h2>
+//   <p>Content</p>
+//   <div className="card-footer">Footer</div>
+// </article>
+```
+
+### Creating Polymorphic Components
+
+```tsx
+function Text({ asChild, size = 'md', ...props }) {
+  const Component = asChild ? Slot.Root : 'span';
+  
+  return (
+    <Component
+      className={`text-${size}`}
+      {...props}
+    />
+  );
+}
+
+// Render as different elements
+<Text>Default span</Text>
+<Text asChild><p>Paragraph with text styles</p></Text>
+<Text asChild><h1>Heading with text styles</h1></Text>
+```
+
+### Complex Composition
+
+```tsx
+function Dialog({ asChild, open, onOpenChange, children }) {
+  const Component = asChild ? Slot.Root : 'div';
+  
+  return (
+    <Component
+      role="dialog"
+      aria-hidden={!open}
+      data-state={open ? 'open' : 'closed'}
+    >
+      {children}
+    </Component>
+  );
+}
+
+<Dialog asChild open={isOpen} onOpenChange={setIsOpen}>
+  <aside className="sidebar">
+    <DialogContent />
+  </aside>
+</Dialog>
+```
+
+### Style Merging
+
+```tsx
+function Box({ asChild, ...props }) {
+  const Component = asChild ? Slot.Root : 'div';
+  
+  return (
+    <Component
+      style={{ padding: '1rem', border: '1px solid' }}
+      {...props}
+    />
+  );
+}
+
+// Styles are merged
+<Box asChild>
+  <section style={{ backgroundColor: 'blue' }}>
+    Content
+  </section>
+</Box>
+// Result has both padding/border AND backgroundColor
+```
+
+### With forwardRef
+
+```tsx
+const CustomButton = forwardRef(({ asChild, ...props }, ref) => {
+  const Component = asChild ? Slot.Root : 'button';
+  
+  return (
+    <Component
+      ref={ref}
+      className="custom-btn"
+      {...props}
+    />
+  );
+});
+
+function App() {
+  const btnRef = useRef();
+  
+  return (
+    <CustomButton asChild ref={btnRef}>
+      <a href="/">Link Button</a>
+    </CustomButton>
+  );
+}
+```
+
+## Notes
+
+- The component only accepts a single child element (enforced via `Children.only`)
+- Props are merged using a custom `mergeProps` utility that handles event handlers and styles intelligently
+- Refs are composed so both parent and child refs work correctly
+- When the child is a Fragment, ref composition is skipped
+- `Slot.Slottable` helps preserve additional wrapper content while slotting the main child
+- Class names, styles, and event handlers are intelligently merged, not replaced
+- Based on Radix UI's Slot implementation

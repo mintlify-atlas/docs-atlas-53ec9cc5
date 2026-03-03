@@ -1,0 +1,403 @@
+---
+title: Slot
+description: Compose components by merging props into children
+---
+
+The Slot component enables advanced component composition by merging props from a parent into its child element, allowing for flexible and reusable component patterns.
+
+## When to Use
+
+- Build polymorphic components with `asChild` patterns
+- Merge event handlers and props across component boundaries
+- Create flexible wrapper components that don't add DOM nodes
+- Implement headless UI patterns
+- Compose ref forwarding across nested components
+
+## Basic Usage
+
+<CodeGroup>
+```tsx Simple Slot
+import { Slot } from "@zayne-labs/ui-react";
+
+function Button({ asChild, ...props }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  return (
+    <Component {...props} className="btn">
+      {props.children}
+    </Component>
+  );
+}
+
+// Usage
+<Button>Click me</Button>
+// Renders: <button class="btn">Click me</button>
+
+<Button asChild>
+  <a href="/home">Go Home</a>
+</Button>
+// Renders: <a href="/home" class="btn">Go Home</a>
+```
+
+```tsx Slottable Pattern
+import { Slot } from "@zayne-labs/ui-react";
+
+function IconButton({ asChild, icon, children }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  return (
+    <Component className="icon-btn">
+      <span className="icon">{icon}</span>
+      <Slot.Slottable>{children}</Slot.Slottable>
+    </Component>
+  );
+}
+
+// Usage
+<IconButton icon={<StarIcon />} asChild>
+  <a href="/favorites">Favorites</a>
+</IconButton>
+// Renders: <a href="/favorites" class="icon-btn">
+//            <span class="icon"><StarIcon /></span>
+//            Favorites
+//          </a>
+```
+</CodeGroup>
+
+## Component API
+
+### Slot.Root
+
+Merges all props into the first valid React element child.
+
+<ParamField path="children" type="React.ReactNode" required>
+  Single React element to merge props into. Multiple children or non-elements will return null
+</ParamField>
+
+<ParamField path="ref" type="React.Ref<HTMLElement>">
+  Ref to forward. Will be composed with child's ref if it exists
+</ParamField>
+
+<ParamField path="...props" type="HTMLAttributes">
+  Any props to merge into the child element (className, onClick, style, etc.)
+</ParamField>
+
+### Slot.Slottable
+
+Marks content that should be preserved when using asChild pattern.
+
+<ParamField path="children" type="React.ReactNode" required>
+  Content to preserve from the child element when slotting
+</ParamField>
+
+## Examples
+
+### Polymorphic Button Component
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+import { forwardRef } from "react";
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ asChild, className, ...props }, ref) => {
+    const Component = asChild ? Slot.Root : 'button';
+
+    return (
+      <Component
+        ref={ref}
+        className={`btn ${className ?? ''}`}
+        {...props}
+      />
+    );
+  }
+);
+
+// Use as button
+<Button onClick={handleClick}>Submit</Button>
+
+// Use as link
+<Button asChild>
+  <a href="/submit">Submit</a>
+</Button>
+
+// Use as Next.js Link
+<Button asChild>
+  <Link href="/submit">Submit</Link>
+</Button>
+```
+
+### Merging Event Handlers
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function TrackedButton({ asChild, onClick, ...props }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  const handleClick = (e) => {
+    // Analytics tracking
+    analytics.track('button_clicked');
+
+    // Call original onClick
+    onClick?.(e);
+  };
+
+  return <Component onClick={handleClick} {...props} />;
+}
+
+// Both onClick handlers will be called
+<TrackedButton asChild>
+  <button onClick={(e) => console.log('Child clicked')}>Click</button>
+</TrackedButton>
+```
+
+### Complex Icon Button
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function IconButton({ asChild, icon, children, position = 'left' }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  return (
+    <Component className="icon-button">
+      {position === 'left' && <span className="icon">{icon}</span>}
+      <Slot.Slottable>{children}</Slot.Slottable>
+      {position === 'right' && <span className="icon">{icon}</span>}
+    </Component>
+  );
+}
+
+// Usage
+<IconButton icon={<SaveIcon />} asChild>
+  <button onClick={handleSave}>Save Changes</button>
+</IconButton>
+```
+
+### Tooltip Trigger
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+import { useState } from "react";
+
+function TooltipTrigger({ asChild, tooltip, children }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const Component = asChild ? Slot.Root : 'div';
+
+  return (
+    <>
+      <Component
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+        aria-describedby="tooltip"
+      >
+        {children}
+      </Component>
+      {isOpen && (
+        <div id="tooltip" role="tooltip" className="tooltip">
+          {tooltip}
+        </div>
+      )}
+    </>
+  );
+}
+
+// Usage - events merge with button's events
+<TooltipTrigger tooltip="Delete this item" asChild>
+  <button onClick={handleDelete}>Delete</button>
+</TooltipTrigger>
+```
+
+### Ref Forwarding
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+import { useRef, forwardRef } from "react";
+
+const AutoFocusWrapper = forwardRef(({ asChild, ...props }, ref) => {
+  const Component = asChild ? Slot.Root : 'div';
+  const internalRef = useRef();
+
+  useEffect(() => {
+    internalRef.current?.focus();
+  }, []);
+
+  return <Component ref={ref ?? internalRef} {...props} />;
+});
+
+// Refs are properly composed
+<AutoFocusWrapper asChild>
+  <input ref={myInputRef} />
+</AutoFocusWrapper>
+```
+
+### Dialog Trigger Pattern
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function DialogTrigger({ asChild, children, onOpenChange }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  return (
+    <Component
+      onClick={() => onOpenChange(true)}
+      aria-haspopup="dialog"
+    >
+      {children}
+    </Component>
+  );
+}
+
+function Dialog({ trigger, children }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <DialogTrigger asChild onOpenChange={setOpen}>
+        {trigger}
+      </DialogTrigger>
+      {open && <DialogContent>{children}</DialogContent>}
+    </>
+  );
+}
+
+// Usage
+<Dialog trigger={<button>Open Settings</button>}>
+  <SettingsPanel />
+</Dialog>
+```
+
+## Comparison to Native Patterns
+
+### Without Slot (Wrapper Element)
+
+```tsx
+function Button({ className, ...props }) {
+  return (
+    <button className={`btn ${className}`} {...props} />
+  );
+}
+
+// Must always render as button
+<Button>Click me</Button>
+// Cannot render as link without creating separate component
+```
+
+### With Slot (Flexible Composition)
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function Button({ asChild, className, ...props }) {
+  const Component = asChild ? Slot.Root : 'button';
+  return <Component className={`btn ${className}`} {...props} />;
+}
+
+// Renders as button
+<Button>Click me</Button>
+
+// Renders as link with same styles
+<Button asChild>
+  <a href="/home">Go Home</a>
+</Button>
+```
+
+## Common Use Cases
+
+### Design System Components
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function Card({ asChild, variant = 'default', ...props }) {
+  const Component = asChild ? Slot.Root : 'div';
+
+  return (
+    <Component
+      className={`card card-${variant}`}
+      {...props}
+    />
+  );
+}
+
+// Regular div
+<Card>Content</Card>
+
+// As article
+<Card asChild>
+  <article>Article content</article>
+</Card>
+
+// As section
+<Card asChild>
+  <section>Section content</section>
+</Card>
+```
+
+### Navigation Items
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function NavItem({ asChild, active, ...props }) {
+  const Component = asChild ? Slot.Root : 'a';
+
+  return (
+    <Component
+      className={`nav-item ${active ? 'active' : ''}`}
+      {...props}
+    />
+  );
+}
+
+// Regular link
+<NavItem href="/home" active>Home</NavItem>
+
+// With React Router
+<NavItem asChild active>
+  <NavLink to="/home">Home</NavLink>
+</NavItem>
+
+// With Next.js
+<NavItem asChild active>
+  <Link href="/home">Home</Link>
+</NavItem>
+```
+
+### Accessible Disclosure
+
+```tsx
+import { Slot } from "@zayne-labs/ui-react";
+
+function DisclosureTrigger({ asChild, expanded, ...props }) {
+  const Component = asChild ? Slot.Root : 'button';
+
+  return (
+    <Component
+      aria-expanded={expanded}
+      aria-controls="disclosure-content"
+      {...props}
+    />
+  );
+}
+
+<DisclosureTrigger asChild expanded={isExpanded}>
+  <button onClick={toggle}>Show Details</button>
+</DisclosureTrigger>
+```
+
+<Note>
+The Slot component automatically merges refs using `composeRefs` and props using `mergeProps`, ensuring event handlers and other props are properly combined.
+</Note>
+
+<Warning>
+Slot.Root requires exactly one valid React element child. Multiple children or text nodes will cause it to return null.
+</Warning>
+
+## Implementation Details
+
+- Props are merged using `mergeProps` utility (className concatenation, event handler composition)
+- Refs are composed using `composeRefs` to support multiple ref assignments
+- `Slot.Slottable` marks content to preserve from the child when using asChild
+- Fragments are supported but their ref will not be forwarded

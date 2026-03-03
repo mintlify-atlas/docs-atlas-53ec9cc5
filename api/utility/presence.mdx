@@ -1,0 +1,259 @@
+---
+title: Presence
+description: API reference for the Presence component - animate mount and unmount transitions.
+---
+
+## Overview
+
+The `Presence` component enables animation of component mount and unmount transitions. It keeps components in the DOM during exit animations and provides hooks for advanced animation control.
+
+## Import
+
+```tsx
+import { Presence, usePresence } from "@zayne-labs/ui-react";
+```
+
+## Presence Component
+
+### Props
+
+<ParamField path="present" type="boolean" required>
+  Whether the component should be present in the DOM.
+</ParamField>
+
+<ParamField path="children" type="React.ReactElement | ((props: RenderPropContext) => React.ReactElement)" required>
+  A single React element with a ref prop, or a render function that receives presence context.
+</ParamField>
+
+<ParamField path="variant" type="'animation' | 'transition'" default="'animation'">
+  The type of CSS animation to use. Use 'animation' for CSS animations and 'transition' for CSS transitions.
+</ParamField>
+
+<ParamField path="forceMount" type="boolean" default="false">
+  When true, forces the component to always be mounted regardless of the present state.
+</ParamField>
+
+<ParamField path="onExitComplete" type="() => void">
+  Callback invoked when the exit animation completes.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class names to apply.
+</ParamField>
+
+## usePresence Hook
+
+```tsx
+function usePresence(options: UsePresenceOptions): UsePresenceResult
+```
+
+### Options
+
+<ParamField path="present" type="boolean" required>
+  Whether the component should be present.
+</ParamField>
+
+<ParamField path="variant" type="'animation' | 'transition'" default="'animation'">
+  The type of CSS animation being used.
+</ParamField>
+
+<ParamField path="onExitComplete" type="() => void">
+  Callback invoked when exit completes.
+</ParamField>
+
+### Returns
+
+<ResponseField name="isPresent" type="boolean">
+  Whether the element is currently present in the state machine.
+</ResponseField>
+
+<ResponseField name="isPresentOrIsTransitionComplete" type="boolean">
+  Whether the element is present or has completed its transition.
+</ResponseField>
+
+<ResponseField name="shouldStartTransition" type="boolean">
+  Whether a transition should start.
+</ResponseField>
+
+<ResponseField name="ref" type="React.Ref<HTMLElement>">
+  Ref to attach to the animated element.
+</ResponseField>
+
+<ResponseField name="propGetters" type="{ getPresenceProps: (props) => props }">
+  Prop getter function for applying presence attributes.
+</ResponseField>
+
+## Type Definitions
+
+```tsx
+type RenderPropContext = {
+  isPresent: boolean;
+  isPresentOrIsTransitionComplete: boolean;
+  shouldStartTransition: boolean;
+};
+
+type UsePresenceResult = {
+  isPresent: boolean;
+  isPresentOrIsTransitionComplete: boolean;
+  propGetters: {
+    getPresenceProps: (innerProps: InferProps<HTMLElement>) => InferProps<HTMLElement>;
+  };
+  ref: React.Ref<HTMLElement>;
+  shouldStartTransition: boolean;
+};
+```
+
+## Data Attributes
+
+The component adds these data attributes for styling:
+
+- `data-present`: "true" when the element is present
+- `data-present-or-transition-complete`: "true" when present or transition is complete
+- `data-state`: Current state ("mounted", "unmountSuspended", "unmounted")
+- `data-transition`: "active" or "inactive" (only when `variant="transition"`)
+
+## Usage Examples
+
+### Basic Animation
+
+```tsx
+function AnimatedBox() {
+  const [show, setShow] = useState(true);
+  
+  return (
+    <>
+      <button onClick={() => setShow(!show)}>Toggle</button>
+      <Presence present={show}>
+        <div className="box">I will animate!</div>
+      </Presence>
+    </>
+  );
+}
+```
+
+```css
+.box {
+  animation: fadeIn 300ms ease-out;
+}
+
+.box[data-state="unmountSuspended"] {
+  animation: fadeOut 300ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+```
+
+### CSS Transitions
+
+```tsx
+<Presence present={isOpen} variant="transition">
+  <div className="modal">Modal Content</div>
+</Presence>
+```
+
+```css
+.modal {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 200ms, transform 200ms;
+}
+
+.modal[data-transition="active"] {
+  opacity: 1;
+  transform: scale(1);
+}
+```
+
+### Render Function
+
+```tsx
+<Presence present={visible}>
+  {({ isPresent, shouldStartTransition }) => (
+    <div
+      className="alert"
+      data-visible={isPresent}
+      data-animating={shouldStartTransition}
+    >
+      Alert message
+    </div>
+  )}
+</Presence>
+```
+
+### Exit Callback
+
+```tsx
+<Presence
+  present={isShowing}
+  onExitComplete={() => {
+    console.log('Animation finished!');
+    onClose();
+  }}
+>
+  <Notification>Your changes have been saved.</Notification>
+</Presence>
+```
+
+### Force Mount
+
+```tsx
+<Presence present={isActive} forceMount>
+  <div className="overlay" aria-hidden={!isActive}>
+    Content always in DOM
+  </div>
+</Presence>
+```
+
+### Using the Hook
+
+```tsx
+function CustomAnimatedComponent({ visible }) {
+  const {
+    isPresent,
+    shouldStartTransition,
+    propGetters,
+    ref
+  } = usePresence({ present: visible });
+  
+  if (!isPresent) return null;
+  
+  return (
+    <div
+      ref={ref}
+      {...propGetters.getPresenceProps({
+        className: 'custom-component'
+      })}
+    >
+      Content with custom animation logic
+    </div>
+  );
+}
+```
+
+### Conditional Content Based on State
+
+```tsx
+<Presence present={isPending} variant="transition">
+  {({ shouldStartTransition }) => (
+    <LoadingSpinner active={shouldStartTransition} />
+  )}
+</Presence>
+```
+
+## Notes
+
+- The component uses a state machine internally to manage mount/unmount states
+- For `variant="animation"`, it detects animation name changes to determine when to suspend unmounting
+- For `variant="transition"`, it listens to `transitionrun` and `transitionend` events
+- The child element must accept a `ref` prop
+- Only one child element is allowed (or a render function that returns one element)
+- The component sets `animationFillMode: 'forwards'` during exit to prevent flashing
+- Based on Radix UI's Presence implementation

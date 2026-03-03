@@ -1,0 +1,595 @@
+---
+title: Form
+description: A comprehensive form component system built on React Hook Form with validation, error handling, and accessible form controls.
+---
+
+## Overview
+
+The Form component provides a complete form solution built on top of [React Hook Form](https://react-hook-form.com/). It includes accessible form controls, automatic error handling, field state management, and seamless integration with validation libraries like Zod.
+
+### Use Cases
+
+- Login and registration forms
+- Multi-step forms and wizards
+- Settings and configuration panels
+- Survey and feedback forms
+- Data entry and CRUD operations
+- Complex forms with dynamic fields
+
+## Installation
+
+The Form component is included with the UI package:
+
+```bash
+pnpm add @zayne-labs/ui-react react-hook-form
+```
+
+For validation, install Zod and the resolver:
+
+```bash
+pnpm add zod @hookform/resolvers
+```
+
+## Basic Usage
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+
+function LoginForm() {
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form.Root form={form} onSubmit={form.handleSubmit(onSubmit)}>
+      <Form.Field name="email">
+        <Form.Label>Email</Form.Label>
+        <Form.Input type="email" placeholder="you@example.com" />
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Field name="password">
+        <Form.Label>Password</Form.Label>
+        <Form.Input type="password" />
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Submit className="rounded bg-blue-500 px-4 py-2 text-white">
+        Sign In
+      </Form.Submit>
+    </Form.Root>
+  );
+}
+```
+
+## Component Parts
+
+### Form.Root
+
+The root form element that provides context to all form components.
+
+```tsx
+<Form.Root 
+  form={form} 
+  onSubmit={form.handleSubmit(onSubmit)}
+  withEyeIcon={true}
+>
+  {children}
+</Form.Root>
+```
+
+**Props:**
+- `form` - React Hook Form instance (required)
+- `withEyeIcon` - Show password visibility toggle (default: `true`)
+- All standard form HTML attributes
+
+### Form.Field
+
+Field wrapper that provides context for labels, inputs, and error messages.
+
+```tsx
+<Form.Field 
+  name="email" 
+  control={form.control}
+  withWrapper={true}
+  className="space-y-2"
+>
+  {children}
+</Form.Field>
+```
+
+**Props:**
+- `name` - Field name (required)
+- `control` - Form control (optional, inferred from context)
+- `withWrapper` - Wrap in div container (default: `true`)
+- `className` - Custom classes for wrapper
+
+**Data Attributes:**
+- `data-disabled` - Present when field is disabled
+- `data-invalid` - Present when field has errors
+
+### Form.Label
+
+Accessible label for form inputs.
+
+```tsx
+<Form.Label className="font-medium">
+  Email Address
+</Form.Label>
+```
+
+Automatically associates with the field's input via `htmlFor`.
+
+### Form.Input
+
+Standard input element with built-in registration.
+
+```tsx
+<Form.Input 
+  type="text"
+  placeholder="Enter text"
+  rules={{ required: "This field is required" }}
+/>
+```
+
+**Props:**
+- All standard input HTML attributes
+- `type` - Input type (text, email, password, etc.)
+- `rules` - Validation rules (React Hook Form format)
+- `classNames` - Custom classes for input, error, eye icon, input group
+- `withEyeIcon` - Override root password toggle setting
+
+### Form.TextArea
+
+Multi-line text input.
+
+```tsx
+<Form.TextArea 
+  rows={4}
+  placeholder="Enter description"
+  rules={{ maxLength: { value: 500, message: "Max 500 characters" } }}
+/>
+```
+
+### Form.Select
+
+Dropdown select element.
+
+```tsx
+<Form.Select rules={{ required: "Please select an option" }}>
+  <option value="">Choose...</option>
+  <option value="option1">Option 1</option>
+  <option value="option2">Option 2</option>
+</Form.Select>
+```
+
+### Form.InputGroup
+
+Groups input with left/right decorations.
+
+```tsx
+<Form.InputGroup className="rounded border">
+  <Form.InputLeftItem>$</Form.InputLeftItem>
+  <Form.Input type="number" />
+  <Form.InputRightItem>.00</Form.InputRightItem>
+</Form.InputGroup>
+```
+
+### Form.ErrorMessage
+
+Displays validation errors with animations.
+
+```tsx
+<Form.ErrorMessage 
+  className="text-red-500"
+  disableErrorAnimation={false}
+  disableScrollToErrorField={false}
+/>
+```
+
+**Props:**
+- `errorField` - Override which field's errors to show
+- `type` - `"regular"` (default) or `"root"` for root-level errors
+- `disableErrorAnimation` - Disable shake animation
+- `disableScrollToErrorField` - Disable auto-scroll to errors
+
+### Form.Description
+
+Helper text for form fields.
+
+```tsx
+<Form.Description className="text-sm text-gray-500">
+  We'll never share your email.
+</Form.Description>
+```
+
+### Form.Submit
+
+Submit button with proper type attribute.
+
+```tsx
+<Form.Submit className="rounded bg-blue-500 px-4 py-2 text-white">
+  Submit
+</Form.Submit>
+```
+
+## Examples
+
+### Registration Form with Validation
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const schema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+function RegistrationForm() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log("Registration data:", data);
+  };
+
+  return (
+    <Form.Root 
+      form={form} 
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="mx-auto max-w-md space-y-6 rounded-lg border p-6"
+    >
+      <h2 className="text-2xl font-bold">Create Account</h2>
+
+      <Form.Field name="username">
+        <Form.Label>Username</Form.Label>
+        <Form.Input placeholder="johndoe" />
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Field name="email">
+        <Form.Label>Email</Form.Label>
+        <Form.Input type="email" placeholder="john@example.com" />
+        <Form.Description>We'll never share your email.</Form.Description>
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Field name="password">
+        <Form.Label>Password</Form.Label>
+        <Form.Input type="password" />
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Field name="confirmPassword">
+        <Form.Label>Confirm Password</Form.Label>
+        <Form.Input type="password" />
+        <Form.ErrorMessage />
+      </Form.Field>
+
+      <Form.Submit className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+        Register
+      </Form.Submit>
+    </Form.Root>
+  );
+}
+```
+
+### Form with Input Groups
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+
+function PricingForm() {
+  const form = useForm({
+    defaultValues: {
+      price: "",
+      domain: "",
+    },
+  });
+
+  return (
+    <Form.Root form={form} onSubmit={form.handleSubmit(console.log)}>
+      <Form.Field name="price">
+        <Form.Label>Price</Form.Label>
+        <Form.InputGroup className="rounded-lg border focus-within:border-blue-500">
+          <Form.InputLeftItem className="px-3 text-gray-500">$</Form.InputLeftItem>
+          <Form.Input type="number" className="border-0" />
+          <Form.InputRightItem className="px-3 text-gray-500">.00</Form.InputRightItem>
+        </Form.InputGroup>
+      </Form.Field>
+
+      <Form.Field name="domain">
+        <Form.Label>Website</Form.Label>
+        <Form.InputGroup className="rounded-lg border">
+          <Form.InputLeftItem className="px-3 text-gray-500">https://</Form.InputLeftItem>
+          <Form.Input className="border-0" placeholder="example.com" />
+        </Form.InputGroup>
+      </Form.Field>
+
+      <Form.Submit className="rounded bg-blue-500 px-4 py-2 text-white">Save</Form.Submit>
+    </Form.Root>
+  );
+}
+```
+
+### Controlled Field with Custom Component
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+
+function CustomControlledForm() {
+  const form = useForm();
+
+  return (
+    <Form.Root form={form}>
+      <Form.FieldWithController
+        name="customField"
+        control={form.control}
+        rules={{ required: "This field is required" }}
+        render={({ field, fieldState }) => (
+          <div>
+            <Form.Label>Custom Field</Form.Label>
+            <div className="rounded border p-2">
+              <input
+                {...field}
+                className="w-full outline-none"
+                placeholder="Custom input"
+              />
+            </div>
+            {fieldState.error && (
+              <p className="text-sm text-red-500">{fieldState.error.message}</p>
+            )}
+          </div>
+        )}
+      />
+    </Form.Root>
+  );
+}
+```
+
+### Form with Watch
+
+React to field value changes:
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+
+function WatchedForm() {
+  const form = useForm({
+    defaultValues: {
+      country: "",
+      state: "",
+    },
+  });
+
+  return (
+    <Form.Root form={form}>
+      <Form.Field name="country">
+        <Form.Label>Country</Form.Label>
+        <Form.Select>
+          <option value="">Select...</option>
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
+        </Form.Select>
+      </Form.Field>
+
+      <Form.Watch name="country">
+        {(country) => (
+          country && (
+            <Form.Field name="state">
+              <Form.Label>State/Province</Form.Label>
+              <Form.Input placeholder={`Enter ${country === 'us' ? 'state' : 'province'}`} />
+            </Form.Field>
+          )
+        )}
+      </Form.Watch>
+
+      <Form.Submit>Submit</Form.Submit>
+    </Form.Root>
+  );
+}
+```
+
+### Form State Subscribe
+
+Subscribe to form state changes:
+
+```tsx
+import { Form } from "@zayne-labs/ui-react";
+import { useForm } from "react-hook-form";
+
+function FormWithState() {
+  const form = useForm();
+
+  return (
+    <Form.Root form={form}>
+      {/* Form fields */}
+      
+      <Form.StateSubscribe>
+        {({ isSubmitting, isDirty, isValid }) => (
+          <div className="flex items-center gap-4">
+            <Form.Submit 
+              disabled={!isDirty || isSubmitting}
+              className="rounded bg-blue-500 px-4 py-2 text-white disabled:opacity-50"
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Form.Submit>
+            
+            {isDirty && <span className="text-sm text-gray-500">Unsaved changes</span>}
+          </div>
+        )}
+      </Form.StateSubscribe>
+    </Form.Root>
+  );
+}
+```
+
+## Password Visibility Toggle
+
+Password inputs automatically include an eye icon to toggle visibility:
+
+```tsx
+<Form.Root form={form} withEyeIcon={true}>
+  <Form.Field name="password">
+    <Form.Label>Password</Form.Label>
+    {/* Eye icon automatically added */}
+    <Form.Input type="password" />
+  </Form.Field>
+</Form.Root>
+```
+
+Disable for specific fields:
+
+```tsx
+<Form.Input type="password" withEyeIcon={false} />
+```
+
+Customize eye icon styling:
+
+```tsx
+<Form.Input 
+  type="password"
+  classNames={{
+    eyeIcon: "text-blue-500 hover:text-blue-700",
+    inputGroup: "rounded-lg border",
+  }}
+/>
+```
+
+## Validation
+
+The Form component works seamlessly with React Hook Form validation:
+
+<Tabs>
+  <Tab title="Inline Rules">
+    ```tsx
+    <Form.Input
+      rules={{
+        required: "Email is required",
+        pattern: {
+          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+          message: "Invalid email address",
+        },
+      }}
+    />
+    ```
+  </Tab>
+  <Tab title="Zod Schema">
+    ```tsx
+    import { zodResolver } from "@hookform/resolvers/zod";
+    import { z } from "zod";
+
+    const schema = z.object({
+      email: z.string().email(),
+      age: z.number().min(18),
+    });
+
+    const form = useForm({
+      resolver: zodResolver(schema),
+    });
+    ```
+  </Tab>
+  <Tab title="Custom Validator">
+    ```tsx
+    <Form.Input
+      rules={{
+        validate: (value) => {
+          if (value.includes("test")) {
+            return "Cannot contain 'test'";
+          }
+          return true;
+        },
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+## Error Handling
+
+Error messages are automatically displayed and animated:
+
+```tsx
+<Form.Field name="email">
+  <Form.Input />
+  {/* Shows all errors for this field */}
+  <Form.ErrorMessage />
+</Form.Field>
+```
+
+Customize error display:
+
+```tsx
+<Form.ErrorMessage
+  className="text-red-600"
+  classNames={{
+    container: "space-y-1",
+    errorMessage: "text-sm",
+    errorMessageAnimation: "animate-bounce",
+  }}
+/>
+```
+
+Root-level errors:
+
+```tsx
+<Form.ErrorMessage type="root" errorField="root.serverError" />
+```
+
+## Styling
+
+All form parts include data attributes:
+
+```css
+[data-scope="form"] { }
+[data-part="field"][data-invalid] { }
+[data-part="input"][data-disabled] { }
+[data-part="label"][data-invalid] { }
+```
+
+## Accessibility
+
+- Labels are properly associated with inputs via `htmlFor`
+- Error messages are linked via `aria-describedby`
+- Invalid fields have `aria-invalid="true"`
+- Disabled fields have proper `disabled` and `aria-disabled` attributes
+- Error messages auto-scroll into view
+- Password visibility toggles are keyboard accessible
+
+<Note>
+The Form component automatically handles field registration, error display, and accessibility attributes.
+</Note>
+
+<Tip>
+Use `Form.Watch` and `Form.StateSubscribe` to create dynamic forms that respond to user input in real-time.
+</Tip>
+
+## API Reference
+
+For detailed prop types and advanced usage, see the [Form API Reference](/api/ui/form).

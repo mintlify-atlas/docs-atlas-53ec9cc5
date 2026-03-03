@@ -1,0 +1,350 @@
+---
+title: SuspenseWithBoundary
+description: Combine React Suspense and ErrorBoundary for complete async handling
+---
+
+The SuspenseWithBoundary component wraps children with both ErrorBoundary and Suspense, providing a convenient way to handle loading states and errors in a single component.
+
+## When to Use
+
+- Handle both loading and error states for async components
+- Wrap data-fetching components with unified error/loading handling
+- Simplify async component boundaries
+- Reduce boilerplate from nested Suspense and ErrorBoundary
+
+## Basic Usage
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<div>Loading...</div>}
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <div>
+          <p>Error: {error.message}</p>
+          <button onClick={resetErrorBoundary}>Retry</button>
+        </div>
+      )}
+    >
+      <AsyncComponent />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+## Component API
+
+<ParamField path="children" type="React.ReactNode" required>
+  Components to wrap with Suspense and ErrorBoundary
+</ParamField>
+
+<ParamField path="fallback" type="React.ReactNode">
+  Loading UI to display while Suspense is triggered
+</ParamField>
+
+<ParamField path="errorFallback" type="React.ReactNode | ((props: ErrorFallbackProps) => React.ReactNode)">
+  Error UI to display when ErrorBoundary catches an error
+</ParamField>
+
+## Examples
+
+### Data Fetching Component
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function UserProfile({ userId }) {
+  return (
+    <SuspenseWithBoundary
+      fallback={
+        <div className="skeleton">
+          <div className="skeleton-avatar" />
+          <div className="skeleton-name" />
+          <div className="skeleton-bio" />
+        </div>
+      }
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <div className="error-state">
+          <h3>Failed to load profile</h3>
+          <p>{error.message}</p>
+          <button onClick={resetErrorBoundary}>Try Again</button>
+        </div>
+      )}
+    >
+      <UserData userId={userId} />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+### Multiple Async Components
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function Dashboard() {
+  return (
+    <div className="dashboard">
+      <SuspenseWithBoundary
+        fallback={<HeaderSkeleton />}
+        errorFallback={<div>Header failed to load</div>}
+      >
+        <Header />
+      </SuspenseWithBoundary>
+
+      <SuspenseWithBoundary
+        fallback={<ChartSkeleton />}
+        errorFallback={({ error }) => <div>Chart error: {error.message}</div>}
+      >
+        <AnalyticsChart />
+      </SuspenseWithBoundary>
+
+      <SuspenseWithBoundary
+        fallback={<TableSkeleton />}
+        errorFallback={<div>Table failed to load</div>}
+      >
+        <DataTable />
+      </SuspenseWithBoundary>
+    </div>
+  );
+}
+```
+
+### Nested Async Content
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function ArticlePage({ articleId }) {
+  return (
+    <SuspenseWithBoundary
+      fallback={<PageSkeleton />}
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <ErrorPage error={error} onRetry={resetErrorBoundary} />
+      )}
+    >
+      <Article id={articleId}>
+        <SuspenseWithBoundary
+          fallback={<CommentsSkeleton />}
+          errorFallback={<div>Comments unavailable</div>}
+        >
+          <Comments articleId={articleId} />
+        </SuspenseWithBoundary>
+      </Article>
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+### With React Server Components
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+// Server Component
+async function ServerData() {
+  const data = await fetchData();
+  return <div>{data.content}</div>;
+}
+
+// Client Component
+function Page() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<Spinner />}
+      errorFallback={({ error }) => <div>Error: {error.message}</div>}
+    >
+      <ServerData />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+### Custom Loading Component
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function LoadingSpinner() {
+  return (
+    <div className="loading-container">
+      <div className="spinner" />
+      <p>Loading content...</p>
+    </div>
+  );
+}
+
+function ErrorDisplay({ error, resetErrorBoundary }) {
+  return (
+    <div className="error-display">
+      <h2>Something went wrong</h2>
+      <details>
+        <summary>Error details</summary>
+        <pre>{error.message}</pre>
+      </details>
+      <button onClick={resetErrorBoundary}>Retry</button>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<LoadingSpinner />}
+      errorFallback={ErrorDisplay}
+    >
+      <AsyncContent />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+## Comparison to Native Patterns
+
+### Manual Nesting
+
+```tsx
+import { Suspense } from "react";
+import { ErrorBoundary } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <ErrorBoundary
+      fallback={({ error, resetErrorBoundary }) => (
+        <div>
+          <p>Error: {error.message}</p>
+          <button onClick={resetErrorBoundary}>Retry</button>
+        </div>
+      )}
+    >
+      <Suspense fallback={<div>Loading...</div>}>
+        <AsyncComponent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+### With SuspenseWithBoundary
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function App() {
+  return (
+    <SuspenseWithBoundary
+      fallback={<div>Loading...</div>}
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <div>
+          <p>Error: {error.message}</p>
+          <button onClick={resetErrorBoundary}>Retry</button>
+        </div>
+      )}
+    >
+      <AsyncComponent />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+## Common Use Cases
+
+### API Route Handler
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function ApiDataDisplay({ endpoint }) {
+  return (
+    <SuspenseWithBoundary
+      fallback={
+        <div className="loading">
+          <p>Fetching data from {endpoint}...</p>
+        </div>
+      }
+      errorFallback={({ error, resetErrorBoundary }) => (
+        <div className="error">
+          <p>Failed to fetch from {endpoint}</p>
+          <p>{error.message}</p>
+          <button onClick={resetErrorBoundary}>Retry</button>
+        </div>
+      )}
+    >
+      <DataComponent endpoint={endpoint} />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+### Image Gallery
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function ImageGallery({ albumId }) {
+  return (
+    <SuspenseWithBoundary
+      fallback={
+        <div className="gallery-skeleton">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="skeleton-image" />
+          ))}
+        </div>
+      }
+      errorFallback={<div>Failed to load images</div>}
+    >
+      <GalleryImages albumId={albumId} />
+    </SuspenseWithBoundary>
+  );
+}
+```
+
+### Form with Async Validation
+
+```tsx
+import { SuspenseWithBoundary } from "@zayne-labs/ui-react";
+
+function SignupForm() {
+  return (
+    <form>
+      <input type="email" name="email" />
+      <SuspenseWithBoundary
+        fallback={<div className="validation-spinner" />}
+        errorFallback={<div className="validation-error">Validation failed</div>}
+      >
+        <EmailValidation />
+      </SuspenseWithBoundary>
+      <button type="submit">Sign Up</button>
+    </form>
+  );
+}
+```
+
+<Info>
+The component renders ErrorBoundary on the outside and Suspense on the inside, ensuring errors are caught before suspense boundaries.
+</Info>
+
+<Note>
+Both `fallback` and `errorFallback` are optional. If omitted, the component will use the default behavior of Suspense and ErrorBoundary (which may show nothing).
+</Note>
+
+## Implementation
+
+The component is a simple composition:
+
+```tsx
+export function SuspenseWithBoundary(props: SuspenseWithBoundaryProps) {
+  const { children, errorFallback, fallback } = props;
+
+  const errorBoundaryProps = Boolean(errorFallback) && { fallback: errorFallback };
+  const suspenseProps = Boolean(fallback) && { fallback };
+
+  return (
+    <ErrorBoundary {...errorBoundaryProps}>
+      <Suspense {...suspenseProps}>{children}</Suspense>
+    </ErrorBoundary>
+  );
+}
+```
