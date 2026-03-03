@@ -1,0 +1,115 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "Zayne Labs UI",
+  "projectDescription": "A collection of composable, headless React UI components and utilities with full TypeScript support",
+  "theme": "palm",
+  "primaryColor": "#6366f1",
+  "lightColor": "#818cf8",
+  "darkColor": "#4f46e5",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/component-structure",
+              "concepts/styling",
+              "concepts/typescript"
+            ]
+          },
+          {
+            "group": "UI Components",
+            "pages": [
+              "components/ui/card",
+              "components/ui/carousel",
+              "components/ui/drag-scroll",
+              "components/ui/drop-zone",
+              "components/ui/form"
+            ]
+          },
+          {
+            "group": "Utility Components",
+            "pages": [
+              "components/utility/await",
+              "components/utility/client-gate",
+              "components/utility/error-boundary",
+              "components/utility/for",
+              "components/utility/presence",
+              "components/utility/show",
+              "components/utility/slot",
+              "components/utility/suspense-with-boundary",
+              "components/utility/switch",
+              "components/utility/teleport"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "UI Components",
+            "pages": [
+              "api/ui/card",
+              "api/ui/carousel",
+              "api/ui/drag-scroll",
+              "api/ui/drop-zone",
+              "api/ui/form"
+            ]
+          },
+          {
+            "group": "Utility Components",
+            "pages": [
+              "api/utility/await",
+              "api/utility/client-gate",
+              "api/utility/error-boundary",
+              "api/utility/for",
+              "api/utility/presence",
+              "api/utility/show",
+              "api/utility/slot",
+              "api/utility/suspense-with-boundary",
+              "api/utility/switch",
+              "api/utility/teleport"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Headless, unstyled components with full styling flexibility",
+    "Composable API design with compound component patterns",
+    "Tree-shakeable ESM modules for optimal bundle sizes",
+    "Full TypeScript support with excellent type inference",
+    "Built on @zayne-labs/toolkit for robust utilities",
+    "Data attributes for consistent styling targets",
+    "Framework-agnostic architecture (React available, more coming)"
+  ],
+  "publicApiSurface": [
+    "@zayne-labs/ui-react/ui/card - Card component with Root, Header, Title, Description, Content, Footer parts",
+    "@zayne-labs/ui-react/ui/carousel - Carousel component with Root, ItemList, Item, Controls, Button, Indicator parts",
+    "@zayne-labs/ui-react/ui/drag-scroll - DragScroll component for drag-to-scroll behavior",
+    "@zayne-labs/ui-react/ui/drop-zone - DropZone component with file upload and drag-and-drop support",
+    "@zayne-labs/ui-react/ui/form - Form component with validation (wrapper around react-hook-form)",
+    "@zayne-labs/ui-react/common/await - Await component for declarative async state handling",
+    "@zayne-labs/ui-react/common/client-gate - ClientGate component for client-side only rendering",
+    "@zayne-labs/ui-react/common/error-boundary - ErrorBoundary component for error handling",
+    "@zayne-labs/ui-react/common/for - For component for list rendering with keying",
+    "@zayne-labs/ui-react/common/presence - Presence component for animation detection",
+    "@zayne-labs/ui-react/common/show - Show component for conditional rendering",
+    "@zayne-labs/ui-react/common/slot - Slot component for component composition",
+    "@zayne-labs/ui-react/common/suspense-with-boundary - Combined Suspense and ErrorBoundary",
+    "@zayne-labs/ui-react/common/switch - Switch component for pattern matching",
+    "@zayne-labs/ui-react/common/teleport - Teleport component for portal-based rendering"
+  ]
+}
